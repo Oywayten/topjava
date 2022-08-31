@@ -20,11 +20,10 @@ public class UserMealWithExcess {
 
     @Override
     public String toString() {
-        return "UserMealWithExcess{" +
-                "dateTime=" + dateTime +
-                ", description='" + description + '\'' +
-                ", calories=" + calories +
-                ", excess=" + excess +
-                '}';
+        return "UserMealWithExcess{"
+                + "dateTime=" + dateTime
+                + ", description='" + description + '\''
+                + ", calories=" + calories
+                + ", excess=" + excess + '}';
     }
 }
