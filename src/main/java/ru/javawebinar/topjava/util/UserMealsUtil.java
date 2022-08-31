@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class UserMealsUtil {
     public static void main(String[] args) {
@@ -24,9 +23,7 @@ public class UserMealsUtil {
                 new UserMeal(LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410));
         List<UserMealWithExcess> mealsTo = filteredByCycles(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000);
         mealsTo.forEach(System.out::println);
-        System.out.println(filteredByStreams(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000)
-        );
-
+        System.out.println(filteredByStreams(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000));
     }
 
     public static List<UserMealWithExcess> filteredByCycles(
@@ -35,8 +32,7 @@ public class UserMealsUtil {
         List<UserMealWithExcess> result = new ArrayList<>();
         int calSum = 0;
         for (UserMeal meal : meals) {
-            if (meal.getDateTime().toLocalTime().isAfter(startTime)
-                    && meal.getDateTime().toLocalTime().isBefore(endTime)) {
+            if (TimeUtil.isBetweenHalfOpen(meal.getDateTime().toLocalTime(), startTime, endTime)) {
                 tmp.add(meal);
                 calSum += meal.getCalories();
             }
@@ -50,12 +46,12 @@ public class UserMealsUtil {
 
     public static List<UserMealWithExcess> filteredByStreams(
             List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
-        Stream<UserMeal> tmp = meals.stream()
-                .filter(meal -> meal.getDateTime().toLocalTime().isAfter(startTime)
-                        && meal.getDateTime().toLocalTime().isBefore(endTime));
-        int calSum = tmp.mapToInt(UserMeal::getCalories).sum();
+        List<UserMeal> tmp = meals.stream()
+                .filter(meal -> TimeUtil.isBetweenHalfOpen(meal.getDateTime().toLocalTime(), startTime, endTime))
+                .collect(Collectors.toList());
+        int calSum = tmp.stream().mapToInt(UserMeal::getCalories).sum();
         boolean excess = calSum > caloriesPerDay;
-        return tmp.map(meal ->
+        return tmp.stream().map(meal ->
                         new UserMealWithExcess(meal.getDateTime(), meal.getDescription(), meal.getCalories(), excess))
                 .collect(Collectors.toList());
     }
