@@ -17,6 +17,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Created by Oywayten on 12.01.2023.
  */
 class UserMealsUtilTest {
+    /**
+     * Список {@link List} приемов еды {@link UserMeal} на котором тестируются методы класса.
+     */
     List<UserMeal> meals = Arrays.asList(
             new UserMeal(LocalDateTime.of(
                     2022, Month.JANUARY, 30, 10, 0), "Завтрак", 500),

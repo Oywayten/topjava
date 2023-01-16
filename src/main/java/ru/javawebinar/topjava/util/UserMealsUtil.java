@@ -14,6 +14,10 @@ import java.util.stream.Collectors;
  * Утилитный класс по питанию.
  */
 public class UserMealsUtil {
+    /**
+     * Метод для простой проверки результата работы класса.
+     * @param args аргументы метода (не используются).
+     */
     public static void main(String[] args) {
         List<UserMeal> meals = Arrays.asList(
                 new UserMeal(LocalDateTime.of(
