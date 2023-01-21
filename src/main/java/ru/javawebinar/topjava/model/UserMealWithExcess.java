@@ -22,7 +22,7 @@ public class UserMealWithExcess {
     /**
      * Признак избыточности еды.
      */
-    private final boolean excess;
+    private boolean excess;
 
     /**
      * Конструктор для создания приема еды с признаком избытка. Принимает дата/время, описание и
@@ -56,6 +56,26 @@ public class UserMealWithExcess {
         this.dateTime = userMeal.getDateTime();
         this.description = userMeal.getDescription();
         this.calories = userMeal.getCalories();
+        this.excess = excess;
+    }
+
+    public LocalDateTime getDateTime() {
+        return dateTime;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public int getCalories() {
+        return calories;
+    }
+
+    public boolean isExcess() {
+        return excess;
+    }
+
+    public void setExcess(boolean excess) {
         this.excess = excess;
     }
 
