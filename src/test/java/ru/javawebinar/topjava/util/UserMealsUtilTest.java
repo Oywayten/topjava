@@ -155,4 +155,41 @@ class UserMealsUtilTest {
                         2022, Month.JANUARY, 31, 20, 0), "Ужин", 410, excess2));
         assertThat(actual).isEqualTo(expected);
     }
+
+    @Test
+    void whenFilteredByStream2AndTime10To12AndCaloriesPerDay2000() {
+        List<UserMealWithExcess> actual = UserMealsUtil.filteredByStream2(
+                meals, LocalTime.of(10, 0), LocalTime.of(12, 0), 2000
+        );
+        List<UserMealWithExcess> expected = Arrays.asList(
+                new UserMealWithExcess(LocalDateTime.of(
+                        2022, Month.JANUARY, 30, 10, 0), "Завтрак", 500, excess1),
+                new UserMealWithExcess(LocalDateTime.of(
+                        2022, Month.JANUARY, 31, 10, 0), "Завтрак", 1000, excess2)
+        );
+        assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
+    void whenFilteredByStream2AndTime00To2359AndCaloriesPerDay2000() {
+        List<UserMealWithExcess> actual = UserMealsUtil.filteredByStream2(
+                meals, LocalTime.of(0, 0), LocalTime.of(23, 59), 2000
+        );
+        List<UserMealWithExcess> expected = Arrays.asList(
+                new UserMealWithExcess(LocalDateTime.of(
+                        2022, Month.JANUARY, 30, 10, 0), "Завтрак", 500, excess1),
+                new UserMealWithExcess(LocalDateTime.of(
+                        2022, Month.JANUARY, 30, 13, 0), "Обед", 1000, excess1),
+                new UserMealWithExcess(LocalDateTime.of(
+                        2022, Month.JANUARY, 30, 20, 0), "Ужин", 500, excess1),
+                new UserMealWithExcess(LocalDateTime.of(
+                        2022, Month.JANUARY, 31, 0, 0), "Еда на граничное значение", 100, excess2),
+                new UserMealWithExcess(LocalDateTime.of(
+                        2022, Month.JANUARY, 31, 10, 0), "Завтрак", 1000, excess2),
+                new UserMealWithExcess(LocalDateTime.of(
+                        2022, Month.JANUARY, 31, 13, 0), "Обед", 500, excess2),
+                new UserMealWithExcess(LocalDateTime.of(
+                        2022, Month.JANUARY, 31, 20, 0), "Ужин", 410, excess2));
+        assertThat(actual).isEqualTo(expected);
+    }
 }
