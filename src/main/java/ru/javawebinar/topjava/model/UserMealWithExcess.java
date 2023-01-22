@@ -2,6 +2,7 @@ package ru.javawebinar.topjava.model;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.StringJoiner;
 
 /**
  * Результат обработки записи приема еды и информация о превышении калорий за день.
@@ -20,13 +21,13 @@ public class UserMealWithExcess {
      */
     private final int calories;
     /**
-     * Признак избыточности еды.
+     * Экземпляр избыточности еды.
      */
-    private boolean excess;
+    private final Excess excess;
 
     /**
-     * Конструктор для создания приема еды с признаком избытка. Принимает дата/время, описание и
-     * калории.
+     * Конструктор для создания приема еды с признаком избытка. Принимает дата/время, описание,
+     * калории и признак избытка. Используется в первых нескольких тестах.
      *
      * @param dateTime    {@link LocalDateTime} дата/время приема еды.
      * @param description {@link String} описание еды.
@@ -37,6 +38,23 @@ public class UserMealWithExcess {
      */
     public UserMealWithExcess(LocalDateTime dateTime, String description,
                               int calories, boolean excess) {
+        this.dateTime = dateTime;
+        this.description = description;
+        this.calories = calories;
+        this.excess = new Excess(excess);
+    }
+
+    /**
+     * Конструктор для создания приема еды с признаком избытка. Принимает дата/время, описание и
+     * калории. Создан для удобства тестирования.
+     *
+     * @param dateTime    {@link LocalDateTime} дата/время приема еды.
+     * @param description {@link String} описание еды.
+     * @param calories    int калорийность еды.
+     * @param excess      {@link Excess} признак избыточности еды.
+     */
+    public UserMealWithExcess(LocalDateTime dateTime, String description,
+                              int calories, Excess excess) {
         this.dateTime = dateTime;
         this.description = description;
         this.calories = calories;
@@ -56,26 +74,20 @@ public class UserMealWithExcess {
         this.dateTime = userMeal.getDateTime();
         this.description = userMeal.getDescription();
         this.calories = userMeal.getCalories();
-        this.excess = excess;
+        this.excess = new Excess(excess);
     }
 
-    public LocalDateTime getDateTime() {
-        return dateTime;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public int getCalories() {
-        return calories;
-    }
-
-    public boolean isExcess() {
-        return excess;
-    }
-
-    public void setExcess(boolean excess) {
+    /**
+     * Конструктор для создания приема еды с признаком избытка. Принимает {@link UserMeal} и
+     * boolean признак избыточности еды true или false.
+     *
+     * @param userMeal прием пищи {@link UserMeal}.
+     * @param excess   {@link Excess} признак избыточности еды.
+     */
+    public UserMealWithExcess(UserMeal userMeal, Excess excess) {
+        this.dateTime = userMeal.getDateTime();
+        this.description = userMeal.getDescription();
+        this.calories = userMeal.getCalories();
         this.excess = excess;
     }
 
@@ -88,9 +100,8 @@ public class UserMealWithExcess {
             return false;
         }
         UserMealWithExcess that = (UserMealWithExcess) o;
-        return calories == that.calories && excess == that.excess
-               && dateTime.equals(that.dateTime)
-               && description.equals(that.description);
+        return calories == that.calories && dateTime.equals(that.dateTime)
+               && description.equals(that.description) && excess.equals(that.excess);
     }
 
     @Override
@@ -100,10 +111,11 @@ public class UserMealWithExcess {
 
     @Override
     public String toString() {
-        return "UserMealWithExcess{"
-               + "dateTime=" + dateTime
-               + ", description='" + description + '\''
-               + ", calories=" + calories
-               + ", excess=" + excess + '}';
+        return new StringJoiner(", ", UserMealWithExcess.class.getSimpleName() + "[", "]")
+                .add("dateTime=" + dateTime)
+                .add("description='" + description + "'")
+                .add("calories=" + calories)
+                .add("excess=" + excess)
+                .toString();
     }
 }

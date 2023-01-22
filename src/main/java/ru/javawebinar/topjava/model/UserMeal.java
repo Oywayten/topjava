@@ -3,6 +3,7 @@ package ru.javawebinar.topjava.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.StringJoiner;
 
 /**
  * Модель данных приема еды.
@@ -53,5 +54,14 @@ public class UserMeal {
 
     public int getCalories() {
         return calories;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", UserMeal.class.getSimpleName() + "[", "]")
+                .add("dateTime=" + dateTime)
+                .add("description='" + description + "'")
+                .add("calories=" + calories)
+                .toString();
     }
 }

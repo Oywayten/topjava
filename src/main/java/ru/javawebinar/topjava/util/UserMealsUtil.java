@@ -1,5 +1,6 @@
 package ru.javawebinar.topjava.util;
 
+import ru.javawebinar.topjava.model.Excess;
 import ru.javawebinar.topjava.model.UserMeal;
 import ru.javawebinar.topjava.model.UserMealWithExcess;
 
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 public class UserMealsUtil {
     /**
      * Метод для простой проверки результата работы класса.
+     *
      * @param args аргументы метода (не используются).
      */
     public static void main(String[] args) {
@@ -104,5 +106,40 @@ public class UserMealsUtil {
                         userMeal,
                         dateCaloriesMap.get(userMeal.getDate()) > caloriesPerDay))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Optional2 by cycle.
+     * Метод получает список приемов еды для проверки было ли превышение
+     * заданного калоража в указанном периоде. Метод реализован на циклах.
+     *
+     * @param meals          список еды {@link UserMeal}
+     * @param startTime      начало ежедневного временного интервала
+     * @param endTime        конец ежедневного временного интервала
+     * @param caloriesPerDay int максимальное количество калорий для интервала
+     * @return {@link UserMealWithExcess} список записей с флагом избытка
+     * калорий.
+     */
+    public static List<UserMealWithExcess> filteredByCycles2(
+            List<UserMeal> meals,
+            LocalTime startTime,
+            LocalTime endTime,
+            int caloriesPerDay) {
+        Map<LocalDate, Excess> dateExcessMap = new HashMap<>();
+        List<UserMealWithExcess> result = new LinkedList<>();
+        for (UserMeal meal : meals) {
+            final Excess merge = dateExcessMap.merge(
+                    meal.getDate(),
+                    new Excess(caloriesPerDay, meal.getCalories()),
+                    (excess, excess2) -> {
+                        excess.addCalories(meal.getCalories());
+                        return excess;
+                    }
+            );
+            if (TimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
+                result.add(new UserMealWithExcess(meal, merge));
+            }
+        }
+        return result;
     }
 }
