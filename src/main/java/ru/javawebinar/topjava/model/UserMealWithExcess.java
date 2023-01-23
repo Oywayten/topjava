@@ -5,39 +5,37 @@ import java.util.Objects;
 import java.util.StringJoiner;
 
 /**
- * Результат обработки записи приема еды и информация о превышении калорий за день.
+ * The result of processing the food intake record and information about the excess calories per day.
  */
 public class UserMealWithExcess {
     /**
-     * Дата и время приема еды.
+     * Date and time of meal.
      */
     private final LocalDateTime dateTime;
     /**
-     * Описание еды.
+     * Description of food.
      */
     private final String description;
     /**
-     * Калорийность еды.
+     * Calorie food.
      */
     private final int calories;
     /**
-     * Экземпляр избыточности еды.
+     * Food redundancy instance.
      */
     private final Excess excess;
 
     /**
-     * Конструктор для создания приема еды с признаком избытка. Принимает дата/время, описание,
-     * калории и признак избытка. Используется в первых нескольких тестах.
+     * Constructor for creating a meal with a sign of excess. Accepts datetime, description, calories,
+     * and a sign of excess. Used in the first few tests.
      *
-     * @param dateTime    {@link LocalDateTime} дата/время приема еды.
-     * @param description {@link String} описание еды.
-     * @param calories    int калорийность еды.
-     * @param excess      boolean признак избыточности еды: true, если сумма калорий в этот день
-     *                    превышает установленный предел calories; false, если
-     *                    не превышает.
+     * @param dateTime    {@link LocalDateTime} date/time of meal.
+     * @param description {@link String} food description.
+     * @param calories    int calorie content of food.
+     * @param excess      boolean sign of overeating: true if the amount of calories for that day exceeds the set
+     *                    calorie limit; false if not greater.
      */
-    public UserMealWithExcess(LocalDateTime dateTime, String description,
-                              int calories, boolean excess) {
+    public UserMealWithExcess(LocalDateTime dateTime, String description, int calories, boolean excess) {
         this.dateTime = dateTime;
         this.description = description;
         this.calories = calories;
@@ -45,49 +43,18 @@ public class UserMealWithExcess {
     }
 
     /**
-     * Конструктор для создания приема еды с признаком избытка. Принимает дата/время, описание и
-     * калории. Создан для удобства тестирования.
+     * Constructor for creating a meal with a sign of excess.
+     * Accepts datetime, description and calories. Designed for ease of testing.
      *
-     * @param dateTime    {@link LocalDateTime} дата/время приема еды.
-     * @param description {@link String} описание еды.
-     * @param calories    int калорийность еды.
-     * @param excess      {@link Excess} признак избыточности еды.
+     * @param dateTime    {@link LocalDateTime} date/time of meal.
+     * @param description {@link String} food description.
+     * @param calories    int calorie content of food.
+     * @param excess      {@link Excess} sign of excess food.
      */
-    public UserMealWithExcess(LocalDateTime dateTime, String description,
-                              int calories, Excess excess) {
+    public UserMealWithExcess(LocalDateTime dateTime, String description, int calories, Excess excess) {
         this.dateTime = dateTime;
         this.description = description;
         this.calories = calories;
-        this.excess = excess;
-    }
-
-    /**
-     * Конструктор для создания приема еды с признаком избытка. Принимает {@link UserMeal} и
-     * boolean признак избыточности еды true или false.
-     *
-     * @param userMeal прием пищи {@link UserMeal}.
-     * @param excess   boolean признак избыточности еды: true, если сумма калорий в этот день
-     *                 превышает установленный предел; false, если
-     *                 не превышает.
-     */
-    public UserMealWithExcess(UserMeal userMeal, boolean excess) {
-        this.dateTime = userMeal.getDateTime();
-        this.description = userMeal.getDescription();
-        this.calories = userMeal.getCalories();
-        this.excess = new Excess(excess);
-    }
-
-    /**
-     * Конструктор для создания приема еды с признаком избытка. Принимает {@link UserMeal} и
-     * boolean признак избыточности еды true или false.
-     *
-     * @param userMeal прием пищи {@link UserMeal}.
-     * @param excess   {@link Excess} признак избыточности еды.
-     */
-    public UserMealWithExcess(UserMeal userMeal, Excess excess) {
-        this.dateTime = userMeal.getDateTime();
-        this.description = userMeal.getDescription();
-        this.calories = userMeal.getCalories();
         this.excess = excess;
     }
 

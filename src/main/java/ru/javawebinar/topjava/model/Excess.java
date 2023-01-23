@@ -4,29 +4,29 @@ import java.util.Objects;
 import java.util.StringJoiner;
 
 /**
- * Класс реализует логику выявления признака избытка калорий.
+ * The class implements the logic of detecting a sign of an excess of calories.
  * Created by Oywayten on 22.01.2023.
  */
 public class Excess {
     /**
-     * Лимит калорий.
+     * Calorie limit.
      */
     int limitCalories;
     /**
-     * Сумма калорий.
+     * The amount of calories.
      */
     int sumCalories;
     /**
-     * Признак избыточности.
+     * Sign of redundancy.
      */
     boolean excess;
 
     /**
-     * Конструктор принимает лимит калорий и стартовое значение суммы калорий.
-     * excess высчитывается на основе сравненения sumCalories и limitCalories.
+     * The constructor accepts a calorie limit and a start value for the amount of calories.
+     * excess is calculated based on the comparison of sumCalories and limitCalories.
      *
-     * @param limitCalories лимит калорий.
-     * @param sumCalories   сумма калорий.
+     * @param limitCalories calorie limit.
+     * @param sumCalories   amount of calories.
      */
     public Excess(int limitCalories, int sumCalories) {
         this.limitCalories = limitCalories;
@@ -39,26 +39,14 @@ public class Excess {
     }
 
     /**
-     * Метод добавляет калории к полю sumCalories методом сложения. После этого пересчитывает
-     * поле excess.
+     * The method adds calories to the sumCalories field using the addition method.
+     * After that, the excess field is recalculated.
      *
-     * @param calorie переданные калории.
+     * @param calorie calories transferred.
      */
     public void addCalories(int calorie) {
         this.sumCalories += calorie;
         this.excess = sumCalories > limitCalories;
-    }
-
-    public boolean isExcess() {
-        return excess;
-    }
-
-    public void setExcess(boolean excess) {
-        this.excess = excess;
-    }
-
-    public int getSumCalories() {
-        return sumCalories;
     }
 
     @Override
