@@ -16,64 +16,53 @@ import java.util.stream.Collectors;
 public class UserMealsUtil {
     /**
      * Метод для простой проверки результата работы класса.
+     *
      * @param args аргументы метода (не используются).
      */
     public static void main(String[] args) {
         List<UserMeal> meals = Arrays.asList(
-                new UserMeal(LocalDateTime.of(
-                        2022, Month.JANUARY, 30, 10, 0), "Завтрак", 500),
-                new UserMeal(LocalDateTime.of(
-                        2022, Month.JANUARY, 30, 13, 0), "Обед", 1000),
-                new UserMeal(LocalDateTime.of(
-                        2022, Month.JANUARY, 30, 20, 0), "Ужин", 500),
-                new UserMeal(LocalDateTime.of(
-                        2022, Month.JANUARY, 31, 0, 0), "Еда на граничное значение", 100),
-                new UserMeal(LocalDateTime.of(
-                        2022, Month.JANUARY, 31, 10, 0), "Завтрак", 1000),
-                new UserMeal(LocalDateTime.of(
-                        2022, Month.JANUARY, 31, 13, 0), "Обед", 500),
-                new UserMeal(LocalDateTime.of(
-                        2022, Month.JANUARY, 31, 20, 0), "Ужин", 410));
-        List<UserMealWithExcess> mealsTo = filteredByCycles(
-                meals, LocalTime.of(7, 0), LocalTime.of(20, 0), 2000);
+                new UserMeal(LocalDateTime.of(2022, Month.JANUARY, 30, 10, 0), "Завтрак", 500),
+                new UserMeal(LocalDateTime.of(2022, Month.JANUARY, 30, 13, 0), "Обед", 1000),
+                new UserMeal(LocalDateTime.of(2022, Month.JANUARY, 30, 20, 0), "Ужин", 500),
+                new UserMeal(LocalDateTime.of(2022, Month.JANUARY, 31, 0, 0), "Еда на граничное значение", 100),
+                new UserMeal(LocalDateTime.of(2022, Month.JANUARY, 31, 10, 0), "Завтрак", 1000),
+                new UserMeal(LocalDateTime.of(2022, Month.JANUARY, 31, 13, 0), "Обед", 500),
+                new UserMeal(LocalDateTime.of(2022, Month.JANUARY, 31, 20, 0), "Ужин", 410));
+        List<UserMealWithExcess> mealsTo = filteredByCycles(meals, LocalTime.of(7, 0), LocalTime.of(20, 0), 2000);
         mealsTo.forEach(System.out::println);
-        System.out.println(filteredByStreams(
-                meals, LocalTime.of(7, 0), LocalTime.of(20, 0), 2000));
+        System.out.println(filteredByStreams(meals, LocalTime.of(7, 0), LocalTime.of(20, 0), 2000));
     }
 
+    /**
+     * Utility method converts UserMeal to UserMealWithExcess.
+     */
+    private static UserMealWithExcess getUserMealWithExcess(UserMeal userMeal, boolean excess) {
+        return new UserMealWithExcess(userMeal.getDateTime(), userMeal.getDescription(), userMeal.getCalories(), excess);
+    }
 
     /**
      * HW0.
-     * Метод получает список приемов еды для проверки было ли превышение
-     * заданного калоража в указанном периоде. Метод реализован на циклах.
+     * The method gets a list of meals, start and end times between 00:00 and 23:59, daily calorie limit, to get a list
+     * of time-filtered food entries.
+     * The method is implemented on cycles.
      *
-     * @param meals          список еды {@link UserMeal}
-     * @param startTime      начало ежедневного временного интервала
-     * @param endTime        конец ежедневного временного интервала
-     * @param caloriesPerDay int максимальное количество калорий для интервала
-     * @return {@link UserMealWithExcess} список записей с флагом избытка
-     * калорий.
+     * @param meals          food list {@link UserMeal}.
+     * @param startTime      start of daily time slot.
+     * @param endTime        end of daily time slot.
+     * @param caloriesPerDay int maximum calories per day.
+     * @return {@link UserMealWithExcess} a list of entries with a calorie surplus flag.
      */
     public static List<UserMealWithExcess> filteredByCycles(
-            List<UserMeal> meals,
-            LocalTime startTime,
-            LocalTime endTime,
-            int caloriesPerDay) {
+            List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
         Map<LocalDate, Integer> dateCaloriesMap = new HashMap<>();
-        List<UserMealWithExcess> result = new LinkedList<>();
         for (UserMeal meal : meals) {
-            dateCaloriesMap.merge(
-                    meal.getDate(),
-                    meal.getCalories(),
-                    Integer::sum
-            );
+            dateCaloriesMap.merge(meal.getDate(), meal.getCalories(), Integer::sum);
         }
+        List<UserMealWithExcess> result = new ArrayList<>();
         for (UserMeal meal : meals) {
-            final boolean excess =
-                    dateCaloriesMap.get(meal.getDate()) > caloriesPerDay;
-            if (TimeUtil.isBetweenHalfOpen(meal.getTime(),
-                    startTime, endTime)) {
-                result.add(new UserMealWithExcess(meal, excess));
+            final boolean excess = dateCaloriesMap.get(meal.getDate()) > caloriesPerDay;
+            if (TimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
+                result.add(getUserMealWithExcess(meal, excess));
             }
         }
         return result;
@@ -81,28 +70,22 @@ public class UserMealsUtil {
 
     /**
      * Optional with Stream API.
-     * Метод получает список приемов еды для проверки было ли превышение
-     * заданного калоража в указанном периоде. Метод реализован на стримах.
+     * The method gets a list of meals, start and end times between 00:00 and 23:59, daily calorie limit, to get a list
+     * of time-filtered food entries.
+     * The method is implemented on streams.
      *
-     * @param meals          список еды {@link UserMeal}
-     * @param startTime      начало ежедневного временного интервала
-     * @param endTime        конец ежедневного временного интервала
-     * @param caloriesPerDay int максимальное количество калорий для интервала
-     * @return {@link UserMealWithExcess} список записей с флагом избытка
-     * калорий.
+     * @param meals          food list {@link UserMeal}
+     * @param startTime      start of daily time slot.
+     * @param endTime        end of daily time slot.
+     * @param caloriesPerDay int maximum calories per day.
+     * @return {@link UserMealWithExcess} a list of entries with a calorie surplus flag.
      */
     public static List<UserMealWithExcess> filteredByStreams(
-            List<UserMeal> meals, LocalTime startTime,
-            LocalTime endTime, int caloriesPerDay) {
+            List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
         final Map<LocalDate, Integer> dateCaloriesMap = meals.stream()
-                .collect(Collectors.groupingBy(UserMeal::getDate,
-                        HashMap::new, Collectors.summingInt(UserMeal::getCalories)));
-        return meals.stream()
-                .filter(userMeal -> TimeUtil.isBetweenHalfOpen(
-                        userMeal.getTime(), startTime, endTime))
-                .map(userMeal -> new UserMealWithExcess(
-                        userMeal,
-                        dateCaloriesMap.get(userMeal.getDate()) > caloriesPerDay))
+                .collect(Collectors.groupingBy(UserMeal::getDate, Collectors.summingInt(UserMeal::getCalories)));
+        return meals.stream().filter(userMeal -> TimeUtil.isBetweenHalfOpen(userMeal.getTime(), startTime, endTime))
+                .map(userMeal -> getUserMealWithExcess(userMeal, dateCaloriesMap.get(userMeal.getDate()) > caloriesPerDay))
                 .collect(Collectors.toList());
     }
 }

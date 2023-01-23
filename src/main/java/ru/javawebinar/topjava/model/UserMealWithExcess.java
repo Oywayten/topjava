@@ -43,21 +43,6 @@ public class UserMealWithExcess {
         this.excess = excess;
     }
 
-    /**
-     * Конструктор для создания приема еды с признаком избытка. Принимает {@link UserMeal} и
-     * boolean признак избыточности еды true или false.
-     *
-     * @param userMeal прием пищи {@link UserMeal}.
-     * @param excess   boolean признак избыточности еды: true, если сумма калорий в этот день
-     *                 превышает установленный предел; false, если
-     *                 не превышает.
-     */
-    public UserMealWithExcess(UserMeal userMeal, boolean excess) {
-        this.dateTime = userMeal.getDateTime();
-        this.description = userMeal.getDescription();
-        this.calories = userMeal.getCalories();
-        this.excess = excess;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -69,8 +54,8 @@ public class UserMealWithExcess {
         }
         UserMealWithExcess that = (UserMealWithExcess) o;
         return calories == that.calories && excess == that.excess
-               && dateTime.equals(that.dateTime)
-               && description.equals(that.description);
+               && Objects.equals(dateTime, that.dateTime)
+               && Objects.equals(description, that.description);
     }
 
     @Override
