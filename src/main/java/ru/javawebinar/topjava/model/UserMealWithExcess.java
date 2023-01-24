@@ -67,8 +67,8 @@ public class UserMealWithExcess {
             return false;
         }
         UserMealWithExcess that = (UserMealWithExcess) o;
-        return calories == that.calories && dateTime.equals(that.dateTime)
-               && description.equals(that.description) && excess.equals(that.excess);
+        return calories == that.calories && Objects.equals(dateTime, that.dateTime)
+               && Objects.equals(description, that.description) && Objects.equals(excess, that.excess);
     }
 
     @Override

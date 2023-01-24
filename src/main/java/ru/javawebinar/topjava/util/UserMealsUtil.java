@@ -37,14 +37,14 @@ public class UserMealsUtil {
     /**
      * Utility method converts UserMeal with boolean to UserMealWithExcess.
      */
-    private static UserMealWithExcess getUserMealWithBoolean(UserMeal userMeal, boolean excess) {
+    private static UserMealWithExcess getUserMealWithExcess1(UserMeal userMeal, boolean excess) {
         return new UserMealWithExcess(userMeal.getDateTime(), userMeal.getDescription(), userMeal.getCalories(), excess);
     }
 
     /**
      * Utility method converts UserMeal with Excess to UserMealWithExcess.
      */
-    static UserMealWithExcess getUserMealWithExcess(UserMeal userMeal, Excess excess) {
+    static UserMealWithExcess getUserMealWithExcess2(UserMeal userMeal, Excess excess) {
         return new UserMealWithExcess(userMeal.getDateTime(), userMeal.getDescription(), userMeal.getCalories(), excess);
     }
 
@@ -70,7 +70,7 @@ public class UserMealsUtil {
         for (UserMeal meal : meals) {
             final boolean excess = dateCaloriesMap.get(meal.getDate()) > caloriesPerDay;
             if (TimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
-                result.add(getUserMealWithBoolean(meal, excess));
+                result.add(getUserMealWithExcess1(meal, excess));
             }
         }
         return result;
@@ -93,7 +93,7 @@ public class UserMealsUtil {
         final Map<LocalDate, Integer> dateCaloriesMap = meals.stream()
                 .collect(Collectors.groupingBy(UserMeal::getDate, Collectors.summingInt(UserMeal::getCalories)));
         return meals.stream().filter(userMeal -> TimeUtil.isBetweenHalfOpen(userMeal.getTime(), startTime, endTime))
-                .map(userMeal -> getUserMealWithBoolean(userMeal, dateCaloriesMap.get(userMeal.getDate()) > caloriesPerDay))
+                .map(userMeal -> getUserMealWithExcess1(userMeal, dateCaloriesMap.get(userMeal.getDate()) > caloriesPerDay))
                 .collect(Collectors.toList());
     }
 // TODO: 24.01.2023 Заменить на замыкание в стримах опшинл2. 
@@ -123,7 +123,7 @@ public class UserMealsUtil {
                     }
             );
             if (TimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
-                result.add(getUserMealWithExcess(meal, merge));
+                result.add(getUserMealWithExcess2(meal, merge));
             }
         }
         return result;
@@ -151,6 +151,6 @@ public class UserMealsUtil {
                         }
                 ))
                 .filter(userMeal -> TimeUtil.isBetweenHalfOpen(userMeal.getTime(), startTime, endTime))
-                .map(meal -> getUserMealWithExcess(meal, dateExcessMap.get(meal.getDate()))).collect(Collectors.toList());
+                .map(meal -> getUserMealWithExcess2(meal, dateExcessMap.get(meal.getDate()))).collect(Collectors.toList());
     }
 }
