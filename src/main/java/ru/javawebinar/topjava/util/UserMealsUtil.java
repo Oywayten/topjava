@@ -1,6 +1,5 @@
 package ru.javawebinar.topjava.util;
 
-import ru.javawebinar.topjava.model.Excess;
 import ru.javawebinar.topjava.model.UserMeal;
 import ru.javawebinar.topjava.model.UserMealWithExcess;
 
@@ -42,9 +41,9 @@ public class UserMealsUtil {
     }
 
     /**
-     * Utility method converts UserMeal with Excess to UserMealWithExcess.
+     * Utility method converts UserMeal with UserMealWithExcess.Excess to UserMealWithExcess.
      */
-    static UserMealWithExcess getUserMealWithExcess2(UserMeal userMeal, Excess excess) {
+    private static UserMealWithExcess getUserMealWithExcess2(UserMeal userMeal, UserMealWithExcess.Excess excess) {
         return new UserMealWithExcess(userMeal.getDateTime(), userMeal.getDescription(), userMeal.getCalories(), excess);
     }
 
@@ -96,8 +95,6 @@ public class UserMealsUtil {
                 .map(userMeal -> getUserMealWithExcess1(userMeal, dateCaloriesMap.get(userMeal.getDate()) > caloriesPerDay))
                 .collect(Collectors.toList());
     }
-// TODO: 24.01.2023 Заменить на замыкание в стримах опшинл2. 
-    // TODO: 24.01.2023 Excess во внутренний класс.
 
     /**
      * Optional2 by cycle.
@@ -113,10 +110,11 @@ public class UserMealsUtil {
      */
     public static List<UserMealWithExcess> filteredByCycles2(
             List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
-        Map<LocalDate, Excess> dateExcessMap = new HashMap<>();
+        Map<LocalDate, UserMealWithExcess.Excess> dateExcessMap = new HashMap<>();
         List<UserMealWithExcess> result = new LinkedList<>();
         for (UserMeal meal : meals) {
-            final Excess merge = dateExcessMap.merge(meal.getDate(), new Excess(caloriesPerDay, meal.getCalories()),
+            final UserMealWithExcess.Excess merge = dateExcessMap.merge(meal.getDate(),
+                    new UserMealWithExcess.Excess(caloriesPerDay, meal.getCalories()),
                     (excess, excess2) -> {
                         excess.addCalories(meal.getCalories());
                         return excess;
@@ -143,8 +141,9 @@ public class UserMealsUtil {
      */
     public static List<UserMealWithExcess> filteredByStream2(
             List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
-        Map<LocalDate, Excess> dateExcessMap = new HashMap<>();
-        return meals.stream().peek(meal -> dateExcessMap.merge(meal.getDate(), new Excess(caloriesPerDay, meal.getCalories()),
+        Map<LocalDate, UserMealWithExcess.Excess> dateExcessMap = new HashMap<>();
+        return meals.stream().
+                peek(meal -> dateExcessMap.merge(meal.getDate(), new UserMealWithExcess.Excess(caloriesPerDay, meal.getCalories()),
                         (excess, excess2) -> {
                             excess.addCalories(meal.getCalories());
                             return excess;

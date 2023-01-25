@@ -1,7 +1,6 @@
 package ru.javawebinar.topjava.util;
 
 import org.junit.jupiter.api.Test;
-import ru.javawebinar.topjava.model.Excess;
 import ru.javawebinar.topjava.model.UserMeal;
 import ru.javawebinar.topjava.model.UserMealWithExcess;
 
@@ -19,13 +18,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class UserMealsUtilTest {
     /**
-     * {@link Excess} with amount and calorie limit for January 30, 2022.
+     * {@link UserMealWithExcess.Excess} with amount and calorie limit for January 30, 2022.
      */
-    final Excess excess1 = new Excess(2000, 2000);
+    final UserMealWithExcess.Excess excess1 = new UserMealWithExcess.Excess(2000, 2000);
     /**
-     * {@link Excess with amount and calorie limit for January 31, 2022.
+     * {@link UserMealWithExcess.Excess with amount and calorie limit for January 31, 2022.
      */
-    final Excess excess2 = new Excess(2000, 2010);
+    final UserMealWithExcess.Excess excess2 = new UserMealWithExcess.Excess(2000, 2010);
     /**
      * List {@link List} of meals {@link UserMeal} on which class methods are tested.
      */
