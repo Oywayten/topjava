@@ -10,7 +10,7 @@ import java.time.Month;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * Test class for UserMealsUtil class methods.
@@ -135,6 +135,17 @@ class UserMealsUtilTest {
                 new UserMealWithExcess(LocalDateTime.of(2022, Month.JANUARY, 30, 10, 0), "Завтрак", 500, excess1),
                 new UserMealWithExcess(LocalDateTime.of(2022, Month.JANUARY, 31, 10, 0), "Завтрак", 1000, excess2));
         assertThat(actual).containsExactlyInAnyOrderElementsOf(expected);
+    }
+
+    @Test
+    void whenFilteredByStream3AndTime10To12AndCaloriesPerDay2000IsWrongListWith3Element() {
+        List<UserMealWithExcess> actual = UserMealsUtil.filteredByStream3(meals, LocalTime.of(10, 0), LocalTime.of(12, 0), 2000);
+        List<UserMealWithExcess> expected = Arrays.asList(
+                new UserMealWithExcess(LocalDateTime.of(2022, Month.JANUARY, 30, 10, 0), "Завтрак", 500, excess1),
+                new UserMealWithExcess(LocalDateTime.of(2022, Month.JANUARY, 20, 10, 0), "Завтрак", 600, excess1),
+                new UserMealWithExcess(LocalDateTime.of(2022, Month.JANUARY, 31, 10, 0), "Завтрак", 1000, excess2));
+        assertThat(actual.size()).isLessThan(expected.size());
+        assertThat(actual).hasAtLeastOneElementOfType(UserMealWithExcess.class);
     }
 
     @Test
