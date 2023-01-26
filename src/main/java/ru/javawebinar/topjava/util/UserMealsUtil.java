@@ -11,13 +11,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Утилитный класс по питанию.
+ * Utility class on nutrition.
  */
 public class UserMealsUtil {
     /**
-     * Метод для простой проверки результата работы класса.
+     * A method for simply checking the result of the class.
      *
-     * @param args аргументы метода (не используются).
+     * @param args method arguments (not used).
      */
     public static void main(String[] args) {
         List<UserMeal> meals = Arrays.asList(
@@ -34,9 +34,16 @@ public class UserMealsUtil {
     }
 
     /**
-     * Utility method converts UserMeal to UserMealWithExcess.
+     * Utility method converts UserMeal with boolean to UserMealWithExcess.
      */
-    private static UserMealWithExcess getUserMealWithExcess(UserMeal userMeal, boolean excess) {
+    private static UserMealWithExcess getUserMealWithExcess1(UserMeal userMeal, boolean excess) {
+        return new UserMealWithExcess(userMeal.getDateTime(), userMeal.getDescription(), userMeal.getCalories(), excess);
+    }
+
+    /**
+     * Utility method converts UserMeal with UserMealWithExcess.Excess to UserMealWithExcess.
+     */
+    private static UserMealWithExcess getUserMealWithExcess2(UserMeal userMeal, UserMealWithExcess.Excess excess) {
         return new UserMealWithExcess(userMeal.getDateTime(), userMeal.getDescription(), userMeal.getCalories(), excess);
     }
 
@@ -62,7 +69,7 @@ public class UserMealsUtil {
         for (UserMeal meal : meals) {
             final boolean excess = dateCaloriesMap.get(meal.getDate()) > caloriesPerDay;
             if (TimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
-                result.add(getUserMealWithExcess(meal, excess));
+                result.add(getUserMealWithExcess1(meal, excess));
             }
         }
         return result;
@@ -85,7 +92,64 @@ public class UserMealsUtil {
         final Map<LocalDate, Integer> dateCaloriesMap = meals.stream()
                 .collect(Collectors.groupingBy(UserMeal::getDate, Collectors.summingInt(UserMeal::getCalories)));
         return meals.stream().filter(userMeal -> TimeUtil.isBetweenHalfOpen(userMeal.getTime(), startTime, endTime))
-                .map(userMeal -> getUserMealWithExcess(userMeal, dateCaloriesMap.get(userMeal.getDate()) > caloriesPerDay))
+                .map(userMeal -> getUserMealWithExcess1(userMeal, dateCaloriesMap.get(userMeal.getDate()) > caloriesPerDay))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Optional2 by cycle.
+     * Метод получает список приемов еды для проверки было ли превышение
+     * заданного калоража в указанном периоде. Метод реализован на циклах.
+     *
+     * @param meals          список еды {@link UserMeal}
+     * @param startTime      начало ежедневного временного интервала
+     * @param endTime        конец ежедневного временного интервала
+     * @param caloriesPerDay int максимальное количество калорий для интервала
+     * @return {@link UserMealWithExcess} список записей с флагом избытка
+     * калорий.
+     */
+    public static List<UserMealWithExcess> filteredByCycles2(
+            List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
+        Map<LocalDate, UserMealWithExcess.Excess> dateExcessMap = new HashMap<>();
+        List<UserMealWithExcess> result = new LinkedList<>();
+        for (UserMeal meal : meals) {
+            final UserMealWithExcess.Excess merge = dateExcessMap.merge(meal.getDate(),
+                    new UserMealWithExcess.Excess(caloriesPerDay, meal.getCalories()),
+                    (excess, excess2) -> {
+                        excess.addCalories(meal.getCalories());
+                        return excess;
+                    }
+            );
+            if (TimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime)) {
+                result.add(getUserMealWithExcess2(meal, merge));
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Optional2 by Stream API.
+     * Метод получает список приемов еды для проверки было ли превышение
+     * заданного калоража в указанном периоде. Метод реализован на Stream API.
+     *
+     * @param meals          список еды {@link UserMeal}
+     * @param startTime      начало ежедневного временного интервала
+     * @param endTime        конец ежедневного временного интервала
+     * @param caloriesPerDay int максимальное количество калорий для интервала
+     * @return {@link UserMealWithExcess} список записей с флагом избытка
+     * калорий.
+     */
+    public static List<UserMealWithExcess> filteredByStream2(
+            List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
+        Map<LocalDate, UserMealWithExcess.Excess> dateExcessMap = new HashMap<>();
+        return meals.stream().
+                peek(meal -> dateExcessMap.merge(meal.getDate(), new UserMealWithExcess.Excess(caloriesPerDay, meal.getCalories()),
+                        (excess, excess2) -> {
+                            excess.addCalories(meal.getCalories());
+                            return excess;
+                        }
+                ))
+                .filter(userMeal -> TimeUtil.isBetweenHalfOpen(userMeal.getTime(), startTime, endTime))
+                .map(meal -> getUserMealWithExcess2(meal, dateExcessMap.get(meal.getDate()))).collect(Collectors.toList());
     }
 }
