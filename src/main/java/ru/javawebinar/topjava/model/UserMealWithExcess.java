@@ -23,7 +23,7 @@ public class UserMealWithExcess {
     /**
      * Food redundancy instance.
      */
-    private final Excess excess;
+    private Excess excess;
 
     /**
      * Constructor for creating a meal with a sign of excess. Accepts datetime, description, calories,
@@ -55,6 +55,19 @@ public class UserMealWithExcess {
         this.dateTime = dateTime;
         this.description = description;
         this.calories = calories;
+        this.excess = excess;
+    }
+
+    public LocalDateTime getDateTime() {
+        return dateTime;
+    }
+
+    public Excess getExcess() {
+        return excess;
+    }
+
+    public void setExcess(Excess excess) {
+        excess.addCalories(this.excess.sumCalories);
         this.excess = excess;
     }
 

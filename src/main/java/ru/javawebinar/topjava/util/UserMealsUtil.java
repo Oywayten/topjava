@@ -8,6 +8,11 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -49,8 +54,7 @@ public class UserMealsUtil {
 
     /**
      * HW0.
-     * The method gets a list of meals, start and end times between 00:00 and 23:59, daily calorie limit, to get a list
-     * of time-filtered food entries.
+     * The method receives a list of meals to check whether the specified calorie intake was exceeded in the specified period.
      * The method is implemented on cycles.
      *
      * @param meals          food list {@link UserMeal}.
@@ -77,11 +81,10 @@ public class UserMealsUtil {
 
     /**
      * Optional with Stream API.
-     * The method gets a list of meals, start and end times between 00:00 and 23:59, daily calorie limit, to get a list
-     * of time-filtered food entries.
+     * The method receives a list of meals to check whether the specified calorie intake was exceeded in the specified period.
      * The method is implemented on streams.
      *
-     * @param meals          food list {@link UserMeal}
+     * @param meals          food list {@link UserMeal}.
      * @param startTime      start of daily time slot.
      * @param endTime        end of daily time slot.
      * @param caloriesPerDay int maximum calories per day.
@@ -98,15 +101,14 @@ public class UserMealsUtil {
 
     /**
      * Optional2 by cycle.
-     * Метод получает список приемов еды для проверки было ли превышение
-     * заданного калоража в указанном периоде. Метод реализован на циклах.
+     * The method receives a list of meals to check whether the specified calorie intake was exceeded in the specified period.
+     * The method is implemented on cycles.
      *
-     * @param meals          список еды {@link UserMeal}
-     * @param startTime      начало ежедневного временного интервала
-     * @param endTime        конец ежедневного временного интервала
-     * @param caloriesPerDay int максимальное количество калорий для интервала
-     * @return {@link UserMealWithExcess} список записей с флагом избытка
-     * калорий.
+     * @param meals          food list {@link UserMeal}
+     * @param startTime      the start of the daily time interval.
+     * @param endTime        end of the daily time slot.
+     * @param caloriesPerDay int the maximum number of calories for the interval.
+     * @return {@link UserMealWithExcess} a list of entries with a calorie surplus flag.
      */
     public static List<UserMealWithExcess> filteredByCycles2(
             List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
@@ -129,14 +131,14 @@ public class UserMealsUtil {
 
     /**
      * Optional2 by Stream API.
-     * Метод получает список приемов еды для проверки было ли превышение
-     * заданного калоража в указанном периоде. Метод реализован на Stream API.
+     * The method receives a list of meals to check whether the specified calorie intake was exceeded in the specified period.
+     * The method is implemented on the Stream API.
      *
-     * @param meals          список еды {@link UserMeal}
-     * @param startTime      начало ежедневного временного интервала
-     * @param endTime        конец ежедневного временного интервала
-     * @param caloriesPerDay int максимальное количество калорий для интервала
-     * @return {@link UserMealWithExcess} список записей с флагом избытка
+     * @param meals          food list {@link UserMeal}
+     * @param startTime      the start of the daily time interval.
+     * @param endTime        end of the daily time slot.
+     * @param caloriesPerDay int the maximum number of calories for the interval.
+     * @return {@link UserMealWithExcess} a list of entries with a calorie surplus flag.
      * калорий.
      */
     public static List<UserMealWithExcess> filteredByStream2(
@@ -151,5 +153,41 @@ public class UserMealsUtil {
                 ))
                 .filter(userMeal -> TimeUtil.isBetweenHalfOpen(userMeal.getTime(), startTime, endTime))
                 .map(meal -> getUserMealWithExcess2(meal, dateExcessMap.get(meal.getDate()))).collect(Collectors.toList());
+    }
+
+    /**
+     * Optional2 by Stream API with custom Collector.
+     * The method receives a list of meals to check whether the specified calorie intake was exceeded in the specified period.
+     * The method is implemented on the Stream API.
+     *
+     * @param meals          food list {@link UserMeal}
+     * @param startTime      the start of the daily time interval.
+     * @param endTime        end of the daily time slot.
+     * @param caloriesPerDay int the maximum number of calories for the interval.
+     * @return {@link UserMealWithExcess} a list of entries with a calorie surplus flag.
+     * калорий.
+     */
+    public static List<UserMealWithExcess> filteredByStream3(
+            List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
+        Supplier<Map<LocalDate, List<UserMealWithExcess>>> supplier = HashMap::new;
+        BiConsumer<Map<LocalDate, List<UserMealWithExcess>>, UserMeal> consumer = (map, meal) ->
+                map.merge(meal.getDate(), new ArrayList<UserMealWithExcess>() {{
+                    add(getUserMealWithExcess2(meal, new UserMealWithExcess.Excess(caloriesPerDay, meal.getCalories())));
+                }}, (excesses, excesses2) -> {
+                    final UserMealWithExcess.Excess excess = excesses.get(0).getExcess();
+                    excesses2.get(0).setExcess(excess);
+                    excesses.addAll(excesses2);
+                    return excesses;
+                });
+        BinaryOperator<Map<LocalDate, List<UserMealWithExcess>>> merger = (map, map2) -> {
+            map.putAll(map2);
+            return map;
+        };
+        Function<Map<LocalDate, List<UserMealWithExcess>>, List<UserMealWithExcess>> function = (map) ->
+                map.entrySet().stream()
+                        .flatMap(entry -> entry.getValue().stream())
+                        .filter(excess -> TimeUtil.isBetweenHalfOpen(excess.getDateTime().toLocalTime(), startTime, endTime))
+                        .collect(Collectors.toList());
+        return meals.stream().collect(Collector.of(supplier, consumer, merger, function));
     }
 }
