@@ -6,29 +6,29 @@ import java.time.LocalTime;
 import java.util.StringJoiner;
 
 /**
- * Модель данных приема еды.
+ * Meal data model.
  */
 public class UserMeal {
     /**
-     * Дата и время приема еды.
+     * Date and time of the meal.
      */
     private final LocalDateTime dateTime;
     /**
-     * Описание еды.
+     * Description of food.
      */
     private final String description;
     /**
-     * Калорийность еды.
+     * Calorie food.
      */
     private final int calories;
 
     /**
-     * Конструктор для создания приема еды. Принимает дата/время, описание и
-     * калории.
+     * Constructor for creating a meal.
+     * Accepts datetime, description and calories.
      *
-     * @param dateTime    {@link LocalDateTime} дата/время приема еды.
-     * @param description {@link String} описание еды.
-     * @param calories    int калорийность еды.
+     * @param dateTime    {@link LocalDateTime} datetime of the meal.
+     * @param description {@link String} food description.
+     * @param calories    int calorie food.
      */
     public UserMeal(LocalDateTime dateTime, String description, int calories) {
         this.dateTime = dateTime;

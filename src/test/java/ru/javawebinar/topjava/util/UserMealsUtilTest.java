@@ -10,7 +10,7 @@ import java.time.Month;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test class for UserMealsUtil class methods.
@@ -160,5 +160,11 @@ class UserMealsUtilTest {
                 new UserMealWithExcess(LocalDateTime.of(2022, Month.JANUARY, 31, 13, 0), "Обед", 500, excess2),
                 new UserMealWithExcess(LocalDateTime.of(2022, Month.JANUARY, 31, 20, 0), "Ужин", 410, excess2));
         assertThat(actual).containsExactlyInAnyOrderElementsOf(expected);
+    }
+
+    @Test
+    void whenFilteredByStream3AndListIsEmpty() {
+        List<UserMealWithExcess> actual = UserMealsUtil.filteredByStream3(List.of(), LocalTime.of(10, 0), LocalTime.of(12, 0), 2000);
+        assertThat(actual).isEmpty();
     }
 }

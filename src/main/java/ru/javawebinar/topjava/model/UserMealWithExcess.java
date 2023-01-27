@@ -134,6 +134,10 @@ public class UserMealWithExcess {
             this.excess = excess;
         }
 
+        public boolean isExcess() {
+            return excess;
+        }
+
         /**
          * The method adds calories to the sumCalories field using the addition method.
          * After that, the excess field is recalculated.
