@@ -1,24 +1,18 @@
 package ru.javawebinar.topjava.util;
 
 import ru.javawebinar.topjava.model.UserMeal;
-import ru.javawebinar.topjava.model.UserMealStore;
 import ru.javawebinar.topjava.model.UserMealWithExcess;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BinaryOperator;
+import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-/**
- * Utility class on nutrition.
- */
 public class UserMealsUtil {
     /**
      * A method for simply checking the result of the class.
@@ -64,5 +58,43 @@ public class UserMealsUtil {
                                         .map(userMeal -> new UserMealWithExcess(userMeal.getDateTime(),
                                                 userMeal.getDescription(), userMeal.getCalories(), userMealStore.isExcess()))
                                 ).collect(Collectors.toList())));
+    }
+
+    static class UserMealStore {
+        private final List<UserMeal> userMeals;
+        private final int caloriesLimit;
+        private final Predicate<UserMeal> predicate;
+        private int caloriesAmount;
+        private boolean excess;
+
+        public UserMealStore(UserMeal meal, int caloriesLimit, Predicate<UserMeal> predicate) {
+            this.caloriesLimit = caloriesLimit;
+            caloriesAmount += meal.getCalories();
+            excess = caloriesAmount > caloriesLimit;
+            this.predicate = predicate;
+            userMeals = new ArrayList<>();
+            if (this.predicate.test(meal)) {
+                userMeals.add(meal);
+            }
+        }
+
+        public boolean isExcess() {
+            return excess;
+        }
+
+        public List<UserMeal> getUserMeals() {
+            return userMeals;
+        }
+
+        public UserMealStore merge(UserMealStore store) {
+            caloriesAmount += store.caloriesAmount;
+            excess = caloriesAmount > caloriesLimit;
+            store.userMeals.forEach(userMeal -> {
+                if (predicate.test(userMeal)) {
+                    userMeals.add(userMeal);
+                }
+            });
+            return this;
+        }
     }
 }
