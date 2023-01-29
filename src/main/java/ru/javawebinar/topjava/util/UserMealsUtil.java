@@ -53,14 +53,14 @@ public class UserMealsUtil {
             List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesLimit) {
         return meals.parallelStream()
                 .collect(Collector.of(HashMap::new,
-                        (map, meal) -> map.merge(meal.getDate(), new UserMealStore(meal.getDate(), caloriesLimit, userMeal1 ->
-                                TimeUtil.isBetweenHalfOpen(userMeal1.getTime(), startTime, endTime))
+                        (map, meal) -> map.merge(meal.getDate(), new UserMealStore(meal.getDate(), caloriesLimit, userMeal ->
+                                TimeUtil.isBetweenHalfOpen(userMeal.getTime(), startTime, endTime))
                                 .addMeal(meal), UserMealStore::merge),
-                        (BinaryOperator<Map<LocalDate, UserMealStore>>) (map21, map2) -> {
-                            map21.forEach((date, userMealStore) -> map2.merge(date, userMealStore, (UserMealStore::merge)));
+                        (BinaryOperator<Map<LocalDate, UserMealStore>>) (map1, map2) -> {
+                            map1.forEach((date, userMealStore) -> map2.merge(date, userMealStore, (UserMealStore::merge)));
                             return map2;
                         },
-                        (map1) -> map1.values().stream()
+                        (map) -> map.values().stream()
                                 .flatMap(userMealStore -> userMealStore.getUserMeals().stream()
                                         .map(userMeal -> new UserMealWithExcess(userMeal.getDateTime(),
                                                 userMeal.getDescription(), userMeal.getCalories(), userMealStore.isExcess()))
