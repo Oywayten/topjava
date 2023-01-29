@@ -1,7 +1,7 @@
 package ru.javawebinar.topjava.util;
 
 import ru.javawebinar.topjava.model.UserMeal;
-import ru.javawebinar.topjava.model.UserMealTransfer;
+import ru.javawebinar.topjava.model.UserMealStore;
 import ru.javawebinar.topjava.model.UserMealWithExcess;
 
 import java.time.LocalDate;
@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.*;
+import java.util.function.BinaryOperator;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -46,26 +46,24 @@ public class UserMealsUtil {
      * @param startTime     the start of the daily time interval.
      * @param endTime       end of the daily time slot.
      * @param caloriesLimit int the maximum number of calories for the interval.
-     * @return {@link UserMealTransfer} a list of entries with a calorie surplus flag.
+     * @return {@link UserMealStore} a list of entries with a calorie surplus flag.
      * калорий.
      */
     public static List<UserMealWithExcess> filteredByStream3(
             List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesLimit) {
-        Predicate<UserMeal> predicate = userMeal -> TimeUtil.isBetweenHalfOpen(userMeal.getTime(), startTime, endTime);
-        Supplier<Map<LocalDate, UserMealTransfer>> supplier = HashMap::new;
-        BiConsumer<Map<LocalDate, UserMealTransfer>, UserMeal> consumer = (map, meal) ->
-                map.merge(meal.getDate(), new UserMealTransfer(meal.getDate(), caloriesLimit, predicate).addMeal(meal),
-                        UserMealTransfer::addTransfer
-                );
-        BinaryOperator<Map<LocalDate, UserMealTransfer>> combiner = (map, map2) -> {
-            map.forEach((date, userMealWithTransfer) -> map2.merge(date, userMealWithTransfer, (UserMealTransfer::addTransfer)));
-            return map2;
-        };
-        Function<Map<LocalDate, UserMealTransfer>, List<UserMealWithExcess>> finisher = (map) ->
-                map.values().stream().flatMap(userMealTransfer -> userMealTransfer.getUserMeals().stream()
-                        .map(userMeal -> new UserMealWithExcess(userMeal.getDateTime(), userMeal.getDescription(),
-                                userMeal.getCalories(), userMealTransfer.isExcess()))
-                ).collect(Collectors.toList());
-        return meals.parallelStream().collect(Collector.of(supplier, consumer, combiner, finisher));
+        return meals.parallelStream()
+                .collect(Collector.of(HashMap::new,
+                        (map, meal) -> map.merge(meal.getDate(), new UserMealStore(meal.getDate(), caloriesLimit, userMeal1 ->
+                                TimeUtil.isBetweenHalfOpen(userMeal1.getTime(), startTime, endTime))
+                                .addMeal(meal), UserMealStore::merge),
+                        (BinaryOperator<Map<LocalDate, UserMealStore>>) (map21, map2) -> {
+                            map21.forEach((date, userMealStore) -> map2.merge(date, userMealStore, (UserMealStore::merge)));
+                            return map2;
+                        },
+                        (map1) -> map1.values().stream()
+                                .flatMap(userMealStore -> userMealStore.getUserMeals().stream()
+                                        .map(userMeal -> new UserMealWithExcess(userMeal.getDateTime(),
+                                                userMeal.getDescription(), userMeal.getCalories(), userMealStore.isExcess()))
+                                ).collect(Collectors.toList())));
     }
 }
