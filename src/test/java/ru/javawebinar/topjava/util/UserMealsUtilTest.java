@@ -7,6 +7,7 @@ import ru.javawebinar.topjava.model.UserMealWithExcess;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -164,7 +165,7 @@ class UserMealsUtilTest {
 
     @Test
     void whenFilteredByStream3AndListIsEmpty() {
-        List<UserMealWithExcess> actual = UserMealsUtil.filteredByStream3(List.of(), LocalTime.of(10, 0), LocalTime.of(12, 0), 2000);
+        List<UserMealWithExcess> actual = UserMealsUtil.filteredByStream3(new ArrayList<>(), LocalTime.of(10, 0), LocalTime.of(12, 0), 2000);
         assertThat(actual).isEmpty();
     }
 }

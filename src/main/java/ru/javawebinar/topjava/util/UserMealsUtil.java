@@ -66,6 +66,13 @@ public class UserMealsUtil {
     }
 
     /**
+     * Utility method converts UserMeal with boolean to UserMealWithExcess.
+     */
+    private static UserMealWithExcess getUserMealWithExcess(UserMeal userMeal, boolean excess) {
+        return new UserMealWithExcess(userMeal.getDateTime(), userMeal.getDescription(), userMeal.getCalories(), excess);
+    }
+
+    /**
      * Optional with Stream API.
      * The method receives a list of meals to check whether the specified calorie intake was exceeded in the specified period.
      * The method is implemented on streams.
@@ -116,6 +123,13 @@ public class UserMealsUtil {
     }
 
     /**
+     * Utility method converts UserMeal with UserMealWithExcess.Excess to UserMealWithExcess.
+     */
+    private static UserMealWithExcess getUserMealWithExcess(UserMeal userMeal, UserMealWithExcess.Excess excess) {
+        return new UserMealWithExcess(userMeal.getDateTime(), userMeal.getDescription(), userMeal.getCalories(), excess);
+    }
+
+    /**
      * Optional2 by Stream API.
      * The method receives a list of meals to check whether the specified calorie intake was exceeded in the specified period.
      * The method is implemented on the Stream API.
@@ -155,8 +169,7 @@ public class UserMealsUtil {
      */
     public static List<UserMealWithExcess> filteredByStream3(
             List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
-        Supplier<Map<LocalDate, List<UserMealWithExcess>>> supplier = HashMap::new;
-        BiConsumer<Map<LocalDate, List<UserMealWithExcess>>, UserMeal> consumer = (map, meal) ->
+        return meals.stream().collect(Collector.of(HashMap::new, (map, meal) ->
                 map.merge(meal.getDate(), new ArrayList<UserMealWithExcess>() {{
                     add(getUserMealWithExcess(meal, new UserMealWithExcess.Excess(caloriesPerDay, meal.getCalories())));
                 }}, (userMealWithExcesses, userMealWithExcesses1) -> {
@@ -164,36 +177,19 @@ public class UserMealsUtil {
                     userMealWithExcesses1.get(0).setExcess(excess);
                     userMealWithExcesses.addAll(userMealWithExcesses1);
                     return userMealWithExcesses;
-                });
-        BinaryOperator<Map<LocalDate, List<UserMealWithExcess>>> merger = (map, map2) -> {
-            map.forEach(
-                    (date, userMealWithExcesses) -> map2.merge(date, userMealWithExcesses, ((userMealWithExcesses1, userMealWithExcesses2) -> {
-                        userMealWithExcesses1.addAll(userMealWithExcesses2);
-                        return userMealWithExcesses1;
-                    }))
-            );
-            map.putAll(map2);
-            return map;
-        };
-        Function<Map<LocalDate, List<UserMealWithExcess>>, List<UserMealWithExcess>> function = (map) ->
-                map.entrySet().stream()
-                        .flatMap(entry -> entry.getValue().stream())
-                        .filter(excess -> TimeUtil.isBetweenHalfOpen(excess.getDateTime().toLocalTime(), startTime, endTime))
-                        .collect(Collectors.toList());
-        return meals.stream().collect(Collector.of(supplier, consumer, merger, function));
-    }
-
-    /**
-     * Utility method converts UserMeal with boolean to UserMealWithExcess.
-     */
-    private static UserMealWithExcess getUserMealWithExcess(UserMeal userMeal, boolean excess) {
-        return new UserMealWithExcess(userMeal.getDateTime(), userMeal.getDescription(), userMeal.getCalories(), excess);
-    }
-
-    /**
-     * Utility method converts UserMeal with UserMealWithExcess.Excess to UserMealWithExcess.
-     */
-    private static UserMealWithExcess getUserMealWithExcess(UserMeal userMeal, UserMealWithExcess.Excess excess) {
-        return new UserMealWithExcess(userMeal.getDateTime(), userMeal.getDescription(), userMeal.getCalories(), excess);
+                }), (map1, map2) -> {
+                    map1.forEach(
+                            (date, userMealWithExcesses21) -> map2.merge(date, userMealWithExcesses21, ((userMealWithExcesses11, userMealWithExcesses2) -> {
+                                userMealWithExcesses11.addAll(userMealWithExcesses2);
+                                return userMealWithExcesses11;
+                            }))
+                    );
+                    map1.putAll(map2);
+                    return map1;
+                }, (Function<Map<LocalDate, List<UserMealWithExcess>>, List<UserMealWithExcess>>) (map3) ->
+                        map3.entrySet().stream()
+                                .flatMap(entry -> entry.getValue().stream())
+                                .filter(excess1 -> TimeUtil.isBetweenHalfOpen(excess1.getDateTime().toLocalTime(), startTime, endTime))
+                                .collect(Collectors.toList())));
     }
 }
