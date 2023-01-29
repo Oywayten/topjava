@@ -40,11 +40,39 @@ public class UserMealsUtil {
      * @param startTime     the start of the daily time interval.
      * @param endTime       end of the daily time slot.
      * @param caloriesLimit int the maximum number of calories for the interval.
-     * @return {@link UserMealStore} a list of entries with a calorie surplus flag.
      * калорий.
      */
     public static List<UserMealWithExcess> filteredByStream3(
             List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesLimit) {
+
+        class UserMealStore {
+            private final List<UserMeal> userMeals;
+            private final Predicate<UserMeal> predicate;
+            private int caloriesAmount;
+            private boolean excess;
+
+            public UserMealStore(UserMeal meal, int caloriesLimit, Predicate<UserMeal> predicate) {
+                caloriesAmount += meal.getCalories();
+                excess = caloriesAmount > caloriesLimit;
+                this.predicate = predicate;
+                userMeals = new ArrayList<>();
+                if (this.predicate.test(meal)) {
+                    userMeals.add(meal);
+                }
+            }
+
+            public UserMealStore merge(UserMealStore store) {
+                caloriesAmount += store.caloriesAmount;
+                excess = caloriesAmount > caloriesLimit;
+                store.userMeals.forEach(userMeal -> {
+                    if (predicate.test(userMeal)) {
+                        userMeals.add(userMeal);
+                    }
+                });
+                return this;
+            }
+        }
+
         return meals.parallelStream()
                 .collect(Collector.of(HashMap::new,
                         (map, meal) -> map.merge(meal.getDate(), new UserMealStore(meal, caloriesLimit, userMeal ->
@@ -54,47 +82,9 @@ public class UserMealsUtil {
                             return map2;
                         },
                         (map) -> map.values().stream()
-                                .flatMap(userMealStore -> userMealStore.getUserMeals().stream()
+                                .flatMap(userMealStore -> userMealStore.userMeals.stream()
                                         .map(userMeal -> new UserMealWithExcess(userMeal.getDateTime(),
-                                                userMeal.getDescription(), userMeal.getCalories(), userMealStore.isExcess()))
+                                                userMeal.getDescription(), userMeal.getCalories(), userMealStore.excess))
                                 ).collect(Collectors.toList())));
-    }
-
-    static class UserMealStore {
-        private final List<UserMeal> userMeals;
-        private final int caloriesLimit;
-        private final Predicate<UserMeal> predicate;
-        private int caloriesAmount;
-        private boolean excess;
-
-        public UserMealStore(UserMeal meal, int caloriesLimit, Predicate<UserMeal> predicate) {
-            this.caloriesLimit = caloriesLimit;
-            caloriesAmount += meal.getCalories();
-            excess = caloriesAmount > caloriesLimit;
-            this.predicate = predicate;
-            userMeals = new ArrayList<>();
-            if (this.predicate.test(meal)) {
-                userMeals.add(meal);
-            }
-        }
-
-        public boolean isExcess() {
-            return excess;
-        }
-
-        public List<UserMeal> getUserMeals() {
-            return userMeals;
-        }
-
-        public UserMealStore merge(UserMealStore store) {
-            caloriesAmount += store.caloriesAmount;
-            excess = caloriesAmount > caloriesLimit;
-            store.userMeals.forEach(userMeal -> {
-                if (predicate.test(userMeal)) {
-                    userMeals.add(userMeal);
-                }
-            });
-            return this;
-        }
     }
 }
