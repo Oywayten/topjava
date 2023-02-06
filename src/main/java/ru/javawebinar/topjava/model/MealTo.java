@@ -1,5 +1,6 @@
 package ru.javawebinar.topjava.model;
 
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 
 public class MealTo {
@@ -18,13 +19,25 @@ public class MealTo {
         this.excess = excess;
     }
 
+    public LocalDateTime getDateTime() {
+        return dateTime;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public int getCalories() {
+        return calories;
+    }
+
+    public boolean isExcess() {
+        return excess;
+    }
+
     @Override
     public String toString() {
-        return "MealTo{" +
-                "dateTime=" + dateTime +
-                ", description='" + description + '\'' +
-                ", calories=" + calories +
-                ", excess=" + excess +
-                '}';
+        return MessageFormat.format("MealTo'{'dateTime={0}, description=''{1}'', calories={2}, excess={3}'}'",
+                dateTime, description, calories, excess);
     }
 }
