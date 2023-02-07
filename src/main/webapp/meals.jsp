@@ -12,13 +12,14 @@
 <h3><a href="index.html">Home</a></h3>
 <hr>
 <h2>Meals</h2>
-<p><a href="addmeal.html">Add Meal</a></p>
+<p><a href="meals?action=create">Add Meal</a></p>
     <table>
         <thead>
         <tr>
             <th>Date</th>
             <th>Description</th>
             <th>Calories</th>
+            <th colspan="2">Actions</th>
         </tr>
         </thead>
 
@@ -28,6 +29,8 @@
                 <td>${fmt:formatLocalDateTime(num.getDateTime(), 'yyyy-MM-dd HH:mm')}</td>
                 <td>${num.getDescription()}</td>
                 <td>${num.getCalories()}</td>
+                <td><a href="meals?action=edit&id=<c:out value="${num.getId()}"/>">Update</a></td>
+                <td><a href="meals?action=delete&id=<c:out value="${num.getId()}"/>">Delete</a></td>
             </tr>
         </c:forEach>
         </tbody>
