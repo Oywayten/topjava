@@ -29,10 +29,6 @@ public class MealServlet extends HttpServlet {
     private static final Logger log = getLogger(MealServlet.class);
     private MealStore store;
 
-    private static Integer parseCal(HttpServletRequest request) {
-        return Integer.parseInt(request.getParameter("calorie"));
-    }
-
     @Override
     public void init() throws ServletException {
         store = new MemoryMealStore();
@@ -59,7 +55,7 @@ public class MealServlet extends HttpServlet {
                 break;
             case "create":
                 forward = INSERT_OR_EDIT_MEAL_JSP;
-                meal = new Meal(LocalDateTime.now(), "Описание еды", 0);
+                meal = new Meal(LocalDateTime.now(), "", 0);
                 request.setAttribute("meal", meal);
                 operation = "for create meal";
                 break;
@@ -75,12 +71,12 @@ public class MealServlet extends HttpServlet {
         String id = request.getParameter("id");
         String operation;
         Meal meal = new Meal(LocalDateTime.parse(request.getParameter("date")),
-                request.getParameter("description"), parseCal(request));
+                request.getParameter("description"), Integer.parseInt(request.getParameter("calorie")));
         if (id.isEmpty()) {
             store.add(meal);
             operation = "after create meal";
         } else {
-            meal.setId(Integer.parseInt(id));
+            meal = new Meal(Integer.parseInt(id), meal);
             store.update(meal);
             operation = "after update meal";
         }

@@ -31,15 +31,15 @@ public class MemoryMealStore implements MealStore {
 
     @Override
     public Meal add(Meal meal) {
-        meal.setId(id.getAndIncrement());
-        mealMap.put(meal.getId(), meal);
-        return meal;
+        Meal result = new Meal(id.getAndIncrement(), meal);
+        mealMap.put(result.getId(), result);
+        return result;
     }
 
     @Override
     public Meal update(Meal meal) {
-        Meal replace = mealMap.replace(meal.getId(), meal);
-        return replace != null ? meal : null;
+        Meal result = mealMap.replace(meal.getId(), meal);
+        return result != null ? meal : null;
     }
 
     @Override
