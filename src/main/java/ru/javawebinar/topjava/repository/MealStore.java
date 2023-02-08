@@ -1,8 +1,6 @@
 package ru.javawebinar.topjava.repository;
-
 import ru.javawebinar.topjava.model.Meal;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -13,9 +11,9 @@ public interface MealStore {
 
     List<Meal> findAll();
 
-    Meal add(LocalDateTime lt, String ds, int cal);
+    Meal add(Meal meal);
 
-    Meal update(int id, LocalDateTime lt, String ds, int cal);
+    boolean update(Meal meal);
 
-    Meal delete(int id);
+    boolean delete(int id);
 }

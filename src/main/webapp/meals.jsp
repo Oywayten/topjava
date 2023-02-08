@@ -24,13 +24,13 @@
         </thead>
 
         <tbody class="сl">
-        <c:forEach var="num" items="${list}">
-            <tr class="${num.isExcess()?'red':'green'}">
-                <td>${fmt:formatLocalDateTime(num.getDateTime(), 'yyyy-MM-dd HH:mm')}</td>
-                <td>${num.getDescription()}</td>
-                <td>${num.getCalories()}</td>
-                <td><a href="meals?action=edit&id=<c:out value="${num.getId()}"/>">Update</a></td>
-                <td><a href="meals?action=delete&id=<c:out value="${num.getId()}"/>">Delete</a></td>
+        <c:forEach var="mealTo" items="${mealTOList}">
+            <tr class="${mealTo.excess?'red':'green'}">
+                <td>${fmt:formatLocalDateTime(mealTo.dateTime)}</td>
+                <td>${mealTo.description}</td>
+                <td>${mealTo.calories}</td>
+                <td><a href="meals?action=edit&id=${mealTo.getId()}">Update</a></td>
+                <td><a href="meals?action=delete&id=${mealTo.getId()}">Delete</a></td>
             </tr>
         </c:forEach>
         </tbody>
