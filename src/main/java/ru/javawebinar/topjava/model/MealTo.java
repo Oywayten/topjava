@@ -1,8 +1,10 @@
 package ru.javawebinar.topjava.model;
+
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 
 public class MealTo {
+
     private final int id;
     private final LocalDateTime dateTime;
     private final String description;

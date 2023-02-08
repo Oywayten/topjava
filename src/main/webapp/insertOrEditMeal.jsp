@@ -12,19 +12,19 @@
 <h3><a href="index.html">Home</a></h3>
 <hr>
 <h2><a href="meals">Meals</a></h2>
-<h2>${param.get("action") == 'edit' ? 'Edit' : 'Add'} meal</h2>
+<h2>${param.action == 'edit' ? 'Edit' : 'Add'} meal</h2>
 <form method="POST" action='meals' name="editMeal">
     <input hidden="hidden" type="number" readonly="readonly" name="id"
-           value="${not empty meal.id ? meal.id: ''}"/> <br/>
+           value="${not empty meal.id ? meal.id: null}"/> <br/>
     DateTime : <input
         type="datetime-local" name="date"
-        value="${not empty meal.id ? (fmt:formatLocalDateTime(meal.dateTime)) : (fmt:formatLocalDateTime(LocalDateTime.now()))}"/> <br/>
+        value="${fmt:formatLocalDateTime(meal.dateTime)}"/> <br/>
     Description : <input
         type="text" name="description"
-        value="${not empty meal.description ? meal.description : ''}"/> <br/>
+        value="${meal.description}"/> <br/>
     Calories : <input
         type="number" min="0" max="10000" name="calorie"
-        value="${not empty meal.calories ? meal.calories : ''}"/> <br/>
+        value="${meal.calories}"/> <br/>
     <input type="submit" value="Submit"/>
     <button onclick="window.history.back()" type="button">Cancel</button>
 </form>

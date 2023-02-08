@@ -1,4 +1,5 @@
 package ru.javawebinar.topjava.web;
+
 import org.slf4j.Logger;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealStore;
@@ -11,11 +12,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Objects;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class MealServlet extends HttpServlet {
+
     public static final int CALORIES_PER_DAY = 2000;
     private static final long serialVersionUID = 1L;
     private static final String MEALS_JSP = "meals.jsp";
@@ -26,7 +29,8 @@ public class MealServlet extends HttpServlet {
     private static final Logger log = getLogger(MealServlet.class);
     private MealStore store;
 
-    public MealServlet() {
+    private static Integer parseCal(HttpServletRequest request) {
+        return Integer.parseInt(request.getParameter("calorie"));
     }
 
     @Override
@@ -43,11 +47,9 @@ public class MealServlet extends HttpServlet {
             case "delete":
                 int id = Integer.parseInt(request.getParameter("id"));
                 store.delete(id);
-                request.setAttribute("mealTOList", MealsUtil.getAllMealTo(store.findAll(), CALORIES_PER_DAY));
                 response.sendRedirect(MEALS);
-                operation = "delete meal";
-                log.debug(REDIRECT_TO, operation, forward);
-                break;
+                log.debug(REDIRECT_TO, "delete meal", forward);
+                return;
             case "edit":
                 forward = INSERT_OR_EDIT_MEAL_JSP;
                 id = Integer.parseInt(request.getParameter("id"));
@@ -57,36 +59,32 @@ public class MealServlet extends HttpServlet {
                 break;
             case "create":
                 forward = INSERT_OR_EDIT_MEAL_JSP;
+                meal = new Meal(LocalDateTime.now(), "Описание еды", 0);
+                request.setAttribute("meal", meal);
                 operation = "for create meal";
                 break;
             default:
         }
-        if (!"delete".equals(action)) {
-            request.setAttribute("mealTOList", MealsUtil.getAllMealTo(store.findAll(), CALORIES_PER_DAY));
-            request.getRequestDispatcher(forward).forward(request, response);
-            log.debug(FORWARD_TO, operation, forward);
-        }
+        request.setAttribute("mealTOList", MealsUtil.filteredByStreams(store.findAll(), LocalTime.MIN, LocalTime.MAX, CALORIES_PER_DAY));
+        request.getRequestDispatcher(forward).forward(request, response);
+        log.debug(FORWARD_TO, operation, forward);
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         String id = request.getParameter("id");
         String operation;
+        Meal meal = new Meal(LocalDateTime.parse(request.getParameter("date")),
+                request.getParameter("description"), parseCal(request));
         if (id.isEmpty()) {
-            store.add(new Meal(LocalDateTime.parse(request.getParameter("date")),
-                    request.getParameter("description"), parseCal(request)));
+            store.add(meal);
             operation = "after create meal";
         } else {
-            store.update(new Meal(Integer.parseInt(id), LocalDateTime.parse(request.getParameter("date")),
-                    request.getParameter("description"), parseCal(request)));
+            meal.setId(Integer.parseInt(id));
+            store.update(meal);
             operation = "after update meal";
         }
-        request.setAttribute("mealTOList", MealsUtil.getAllMealTo(store.findAll(), CALORIES_PER_DAY));
         response.sendRedirect(MEALS);
         log.debug(REDIRECT_TO, operation, MEALS_JSP);
-    }
-
-    private static Integer parseCal(HttpServletRequest request) {
-        return Integer.parseInt(request.getParameter("calorie"));
     }
 }

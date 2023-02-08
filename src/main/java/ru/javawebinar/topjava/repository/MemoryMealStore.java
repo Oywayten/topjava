@@ -1,4 +1,5 @@
 package ru.javawebinar.topjava.repository;
+
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.MealsUtil;
 
@@ -10,13 +11,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Oywayten 06.02.2023.
  */
 public class MemoryMealStore implements MealStore {
+
     private final Map<Integer, Meal> mealMap = new ConcurrentHashMap<>();
     private final AtomicInteger id = new AtomicInteger(1);
 
     public MemoryMealStore() {
-        for (Meal meal : MealsUtil.meals) {
-            add(meal);
-        }
+        MealsUtil.meals.forEach(this::add);
     }
 
     @Override
@@ -37,12 +37,13 @@ public class MemoryMealStore implements MealStore {
     }
 
     @Override
-    public boolean update(Meal meal) {
-        return Objects.nonNull(mealMap.replace(meal.getId(), meal));
+    public Meal update(Meal meal) {
+        Meal replace = mealMap.replace(meal.getId(), meal);
+        return replace != null ? meal : null;
     }
 
     @Override
-    public boolean delete(int id) {
-        return Objects.nonNull(mealMap.remove(id));
+    public Meal delete(int id) {
+        return mealMap.remove(id);
     }
 }
