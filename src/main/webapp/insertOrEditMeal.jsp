@@ -21,10 +21,10 @@
         value="${not empty meal.id ? (fmt:formatLocalDateTime(meal.dateTime)) : (fmt:formatLocalDateTime(LocalDateTime.now()))}"/> <br/>
     Description : <input
         type="text" name="description"
-        value="${not empty meal.getDescription() ? meal.getDescription(): ''}"/> <br/>
+        value="${not empty meal.description ? meal.description : ''}"/> <br/>
     Calories : <input
         type="number" min="0" max="10000" name="calorie"
-        value="${not empty meal.getCalories() ? meal.getCalories() : ''}"/> <br/>
+        value="${not empty meal.calories ? meal.calories : ''}"/> <br/>
     <input type="submit" value="Submit"/>
     <button onclick="window.history.back()" type="button">Cancel</button>
 </form>

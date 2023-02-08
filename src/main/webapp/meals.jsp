@@ -29,8 +29,8 @@
                 <td>${fmt:formatLocalDateTime(mealTo.dateTime)}</td>
                 <td>${mealTo.description}</td>
                 <td>${mealTo.calories}</td>
-                <td><a href="meals?action=edit&id=${mealTo.getId()}">Update</a></td>
-                <td><a href="meals?action=delete&id=${mealTo.getId()}">Delete</a></td>
+                <td><a href="meals?action=edit&id=${mealTo.id}">Update</a></td>
+                <td><a href="meals?action=delete&id=${mealTo.id}">Delete</a></td>
             </tr>
         </c:forEach>
         </tbody>
