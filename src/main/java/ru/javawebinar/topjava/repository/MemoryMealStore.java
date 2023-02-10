@@ -16,7 +16,7 @@ public class MemoryMealStore implements MealStore {
     private final AtomicInteger id = new AtomicInteger(1);
 
     public MemoryMealStore() {
-        MealsUtil.meals.forEach(this::add);
+        MealsUtil.meals.forEach(this::save);
     }
 
     @Override
@@ -30,16 +30,12 @@ public class MemoryMealStore implements MealStore {
     }
 
     @Override
-    public Meal add(Meal meal) {
-        Meal result = new Meal(id.getAndIncrement(), meal);
-        mealMap.put(result.getId(), result);
-        return result;
-    }
-
-    @Override
-    public Meal update(Meal meal) {
-        Meal result = mealMap.replace(meal.getId(), meal);
-        return result != null ? meal : null;
+    public Meal save(Meal meal) {
+        if (meal.getId() == null) {
+            meal = new Meal(id.getAndIncrement(), meal);
+        }
+        mealMap.put(meal.getId(), meal);
+        return meal;
     }
 
     @Override

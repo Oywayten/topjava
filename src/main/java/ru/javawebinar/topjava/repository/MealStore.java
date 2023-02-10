@@ -13,9 +13,7 @@ public interface MealStore {
 
     List<Meal> findAll();
 
-    Meal add(Meal meal);
-
-    Meal update(Meal meal);
+    Meal save(Meal meal);
 
     Meal delete(int id);
 }

@@ -73,11 +73,11 @@ public class MealServlet extends HttpServlet {
         Meal meal = new Meal(LocalDateTime.parse(request.getParameter("date")),
                 request.getParameter("description"), Integer.parseInt(request.getParameter("calorie")));
         if (id.isEmpty()) {
-            store.add(meal);
+            store.save(meal);
             operation = "after create meal";
         } else {
             meal = new Meal(Integer.parseInt(id), meal);
-            store.update(meal);
+            store.save(meal);
             operation = "after update meal";
         }
         response.sendRedirect(MEALS);
