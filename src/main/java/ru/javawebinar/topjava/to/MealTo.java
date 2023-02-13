@@ -1,16 +1,14 @@
-package ru.javawebinar.topjava.model;
+package ru.javawebinar.topjava.to;
 
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 
 public class MealTo {
+
     private final Integer id;
-
     private final LocalDateTime dateTime;
-
     private final String description;
-
     private final int calories;
-
     private final boolean excess;
 
     public MealTo(Integer id, LocalDateTime dateTime, String description, int calories, boolean excess) {
@@ -43,12 +41,7 @@ public class MealTo {
 
     @Override
     public String toString() {
-        return "MealTo{" +
-                "id=" + id +
-                ", dateTime=" + dateTime +
-                ", description='" + description + '\'' +
-                ", calories=" + calories +
-                ", excess=" + excess +
-                '}';
+        return MessageFormat.format("MealTo'{'id={0}, dateTime={1}, description=''{2}'', calories={3}, excess={4}'}'",
+                id, dateTime, description, calories, excess);
     }
 }
