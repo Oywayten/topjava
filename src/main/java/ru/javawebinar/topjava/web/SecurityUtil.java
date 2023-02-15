@@ -3,13 +3,15 @@ package ru.javawebinar.topjava.web;
 import static ru.javawebinar.topjava.util.MealsUtil.DEFAULT_CALORIES_PER_DAY;
 
 public class SecurityUtil {
+    static int testUserId;
 
     public static int authUserId() {
-        return 1;
+        return testUserId;
     }
 
     public static int setAuthUserId(int userId) {
-        return userId;
+        testUserId = userId;
+        return testUserId;
     }
 
     public static int authUserCaloriesPerDay() {

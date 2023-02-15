@@ -8,7 +8,8 @@ import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.to.MealTo;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import static ru.javawebinar.topjava.util.MealsUtil.getFilteredTos;
@@ -21,7 +22,7 @@ import static ru.javawebinar.topjava.web.SecurityUtil.authUserId;
 @Controller
 public class MealRestController {
 
-    protected final Logger log = LoggerFactory.getLogger(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
     @Autowired
     private MealService service;
 
@@ -30,13 +31,20 @@ public class MealRestController {
         return service.get(id, authUserId());
     }
 
+    /*public List<MealTo> getAllTo() {
+        log.info("getAll");
+        return getTos(service.getAll(authUserId()), authUserCaloriesPerDay());
+    }*/
+
     public List<MealTo> getAllTo() {
         log.info("getAll");
         return getTos(service.getAll(authUserId()), authUserCaloriesPerDay());
     }
 
-    public List<MealTo> getAllToByDateTime(LocalDateTime startDate, LocalDateTime endDate, LocalDateTime startTime, LocalDateTime endTime) {
-        return getFilteredTos(service.getAllByDate(authUserId(), startDate, endDate), authUserCaloriesPerDay(), startTime, endTime);
+    public List<MealTo> getAllToByDateTime(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
+        return getFilteredTos(service.getAllByDate(authUserId(), startDate == null ? LocalDate.MIN : startDate,
+                        endDate == null ? LocalDate.MAX.minusDays(1) : endDate), authUserCaloriesPerDay(), startTime == null ? LocalTime.MIN : startTime,
+                endTime == null ? LocalTime.MAX : endTime);
     }
 
     public Meal create(Meal meal) {
@@ -54,5 +62,9 @@ public class MealRestController {
         log.info("{} update {}", authUserId(), meal);
         assureIdConsistent(meal, id);
         service.update(meal, authUserId());
+    }
+
+    public void mealSetUserId(Meal meal) {
+        meal.setUserId(authUserId());
     }
 }

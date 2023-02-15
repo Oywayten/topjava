@@ -6,7 +6,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.web.meal.MealRestController;
-import ru.javawebinar.topjava.web.user.AdminRestController;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -22,54 +21,16 @@ import java.util.Objects;
 
 public class MealServlet extends HttpServlet {
 
-    public static final String ID = "id";
-    public static final String USER_ID = "userId";
+    private static final String ID = "id";
     private static final Logger log = LoggerFactory.getLogger(MealServlet.class);
+    ConfigurableApplicationContext appCtx;
     MealRestController mealController;
-    AdminRestController adminUserController;
-
-    private static LocalDate getDate(HttpServletRequest request, String date) {
-        String param = request.getParameter(date);
-        LocalDate result;
-        if (param.isEmpty()) {
-            if ("startDate".equals(date)) {
-                result = LocalDate.MIN;
-            } else {
-                result = LocalDate.MAX.minusDays(1);
-            }
-        } else {
-            result = LocalDate.parse(param);
-        }
-        return result;
-    }
-
-    private static LocalTime getTime(HttpServletRequest request, String time) {
-        String param = request.getParameter(time);
-        LocalTime result;
-        if (param.isEmpty()) {
-            if ("startTime".equals(time)) {
-                result = LocalTime.MIN;
-            } else {
-                result = LocalTime.MAX;
-            }
-        } else {
-            result = LocalTime.parse(param);
-        }
-        return result;
-    }
-
-    private static int getInt(HttpServletRequest request, String param) {
-        String paramId = Objects.requireNonNull(request.getParameter(param));
-        return Integer.parseInt(paramId);
-    }
 
     @Override
     public void init() {
-        try (ConfigurableApplicationContext appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml")) {
-            System.out.println("Bean definition names: " + Arrays.toString(appCtx.getBeanDefinitionNames()));
-            adminUserController = appCtx.getBean(AdminRestController.class);
-            mealController = appCtx.getBean(MealRestController.class);
-        }
+        appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml");
+        System.out.println("Bean definition names: " + Arrays.toString(appCtx.getBeanDefinitionNames()));
+        mealController = appCtx.getBean(MealRestController.class);
     }
 
     @Override
@@ -78,10 +39,11 @@ public class MealServlet extends HttpServlet {
         Meal meal = new Meal(LocalDateTime.parse(request.getParameter("dateTime")),
                 request.getParameter("description"),
                 Integer.parseInt(request.getParameter("calories")));
-        log.info(meal.isNew() ? "Create {}" : "Update {}", meal);
-        meal.setId(request.getParameter(ID).isEmpty() ? null : getInt(request, ID));
-        meal.setUserId(request.getParameter(USER_ID).isEmpty() ? null : getInt(request, USER_ID));
-        if (request.getParameter(ID).isEmpty()) {
+        String parameter = request.getParameter(ID);
+        meal.setId(parameter.isEmpty() ? null : getInt(request, ID));
+        mealController.mealSetUserId(meal);
+        log.info(meal.isNew() ? "doPost Create {}" : "Update {}", meal);
+        if (parameter.isEmpty()) {
             mealController.create(meal);
         } else {
             mealController.update(meal, getInt(request, ID));
@@ -109,12 +71,12 @@ public class MealServlet extends HttpServlet {
                 break;
             case "filter":
                 log.info("filter");
+                request.setAttribute("startDate", getDate(request, "startDate"));
+                request.setAttribute("endDate", getDate(request, "endDate"));
+                request.setAttribute("startTime", getTime(request, "startTime"));
+                request.setAttribute("endTime", getTime(request, "endTime"));
                 request.setAttribute("meals", mealController.getAllToByDateTime(
-                        getDate(request, "startDate").atStartOfDay(),
-                        getDate(request, "endDate").atStartOfDay(),
-                        getTime(request, "startTime").atDate(LocalDate.now()),
-                        getTime(request, "endTime").atDate(LocalDate.now())
-                ));
+                        getDate(request, "startDate"), getDate(request, "endDate"), getTime(request, "startTime"), getTime(request, "endTime")));
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;
             case "all":
@@ -125,5 +87,25 @@ public class MealServlet extends HttpServlet {
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;
         }
+    }
+
+    private static LocalDate getDate(HttpServletRequest request, String date) {
+        String param = request.getParameter(date);
+        return param.isEmpty() ? null : LocalDate.parse(param);
+    }
+
+    private static LocalTime getTime(HttpServletRequest request, String time) {
+        String param = request.getParameter(time);
+        return param.isEmpty() ? null : LocalTime.parse(param);
+    }
+
+    private static int getInt(HttpServletRequest request, String param) {
+        String paramId = Objects.requireNonNull(request.getParameter(param));
+        return Integer.parseInt(paramId);
+    }
+
+    @Override
+    public void destroy() {
+        appCtx.close();
     }
 }

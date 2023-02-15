@@ -6,8 +6,7 @@ import ru.javawebinar.topjava.repository.MealRepository;
 import ru.javawebinar.topjava.util.DateTimeUtil;
 import ru.javawebinar.topjava.util.MealsUtil;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -24,8 +23,13 @@ public class InMemoryMealRepository implements MealRepository {
     private final AtomicInteger counter = new AtomicInteger(0);
 
     {
-        for (Meal meal : MealsUtil.meals) {
-            save(meal, 1);
+        List<Meal> meals = MealsUtil.meals;
+        for (int i = 0; i < meals.size(); i++) {
+            if (i < meals.size() / 2) {
+                save(meals.get(i), 1);
+            } else {
+                save(meals.get(i), 2);
+            }
         }
     }
 
@@ -37,7 +41,8 @@ public class InMemoryMealRepository implements MealRepository {
             meal.setUserId(userId);
             repository.put(meal.getId(), meal);
             result = meal;
-        } else if (Objects.equals(meal.getUserId(), userId)) {
+        } else if (get(meal.getId(), userId) != null) {
+            meal.setUserId(userId);
             result = repository.computeIfPresent(meal.getId(), (id, oldMeal) -> meal);
         }
         return result;
@@ -45,17 +50,17 @@ public class InMemoryMealRepository implements MealRepository {
 
     @Override
     public boolean delete(int id, int userId) {
-        return get(id).getUserId() == userId && repository.remove(id) != null;
+        return get(id) != null && get(id).getUserId() == userId && repository.remove(id) != null;
     }
 
     private Meal get(int id) {
-        return repository.getOrDefault(id, null);
+        return repository.get(id);
     }
 
     @Override
     public Meal get(int id, int userId) {
         Meal result = get(id);
-        return result.getUserId() == userId ? result : null;
+        return result != null && result.getUserId() == userId ? result : null;
     }
 
     @Override
@@ -72,9 +77,9 @@ public class InMemoryMealRepository implements MealRepository {
     }
 
     @Override
-    public List<Meal> getAllByDate(int userId, LocalDateTime startDate, LocalDateTime endDate) {
+    public List<Meal> getAllByDate(int userId, LocalDate startDate, LocalDate endDate) {
         return getAllByPredicate(userId, meal -> DateTimeUtil.isBetweenHalfOpen(
-                meal.getDateTime().truncatedTo(ChronoUnit.DAYS), startDate, endDate.plusDays(1)));
+                meal.getDate(), startDate, endDate.plusDays(1)));
     }
 }
 
