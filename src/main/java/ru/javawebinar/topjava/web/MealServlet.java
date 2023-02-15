@@ -58,6 +58,11 @@ public class MealServlet extends HttpServlet {
         return result;
     }
 
+    private static int getInt(HttpServletRequest request, String param) {
+        String paramId = Objects.requireNonNull(request.getParameter(param));
+        return Integer.parseInt(paramId);
+    }
+
     @Override
     public void init() {
         try (ConfigurableApplicationContext appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml")) {
@@ -120,10 +125,5 @@ public class MealServlet extends HttpServlet {
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;
         }
-    }
-
-    private int getInt(HttpServletRequest request, String param) {
-        String paramId = Objects.requireNonNull(request.getParameter(param));
-        return Integer.parseInt(paramId);
     }
 }
