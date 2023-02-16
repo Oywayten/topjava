@@ -31,11 +31,6 @@ public class MealRestController {
         return service.get(id, authUserId());
     }
 
-    /*public List<MealTo> getAllTo() {
-        log.info("getAll");
-        return getTos(service.getAll(authUserId()), authUserCaloriesPerDay());
-    }*/
-
     public List<MealTo> getAllTo() {
         log.info("getAll");
         return getTos(service.getAll(authUserId()), authUserCaloriesPerDay());
@@ -62,9 +57,5 @@ public class MealRestController {
         log.info("{} update {}", authUserId(), meal);
         assureIdConsistent(meal, id);
         service.update(meal, authUserId());
-    }
-
-    public void mealSetUserId(Meal meal) {
-        meal.setUserId(authUserId());
     }
 }

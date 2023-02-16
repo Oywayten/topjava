@@ -1,13 +1,9 @@
 package ru.javawebinar.topjava.web.user;
 
 import org.springframework.stereotype.Controller;
-import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.User;
 
-import javax.servlet.http.HttpServletRequest;
-
 import static ru.javawebinar.topjava.web.SecurityUtil.authUserId;
-import static ru.javawebinar.topjava.web.SecurityUtil.setAuthUserId;
 
 @Controller
 public class ProfileRestController extends AbstractUserController {

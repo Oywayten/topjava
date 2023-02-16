@@ -23,8 +23,8 @@ public class MealServlet extends HttpServlet {
 
     private static final String ID = "id";
     private static final Logger log = LoggerFactory.getLogger(MealServlet.class);
-    ConfigurableApplicationContext appCtx;
-    MealRestController mealController;
+    private ConfigurableApplicationContext appCtx;
+    private MealRestController mealController;
 
     @Override
     public void init() {
@@ -40,13 +40,12 @@ public class MealServlet extends HttpServlet {
                 request.getParameter("description"),
                 Integer.parseInt(request.getParameter("calories")));
         String parameter = request.getParameter(ID);
-        meal.setId(parameter.isEmpty() ? null : getInt(request, ID));
-        mealController.mealSetUserId(meal);
+        meal.setId(parameter.isEmpty() ? null : getId(request));
         log.info(meal.isNew() ? "doPost Create {}" : "Update {}", meal);
         if (parameter.isEmpty()) {
             mealController.create(meal);
         } else {
-            mealController.update(meal, getInt(request, ID));
+            mealController.update(meal, getId(request));
         }
         response.sendRedirect("meals");
     }
@@ -56,7 +55,7 @@ public class MealServlet extends HttpServlet {
         String action = request.getParameter("action");
         switch (action == null ? "all" : action) {
             case "delete":
-                int id = getInt(request, ID);
+                int id = getId(request);
                 log.info("Delete id={}", id);
                 mealController.delete(id);
                 response.sendRedirect("meals");
@@ -65,7 +64,7 @@ public class MealServlet extends HttpServlet {
             case "update":
                 final Meal meal = "create".equals(action)
                         ? new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000)
-                        : mealController.get(getInt(request, ID));
+                        : mealController.get(getId(request));
                 request.setAttribute("meal", meal);
                 request.getRequestDispatcher("/mealForm.jsp").forward(request, response);
                 break;
@@ -89,18 +88,18 @@ public class MealServlet extends HttpServlet {
         }
     }
 
-    private static LocalDate getDate(HttpServletRequest request, String date) {
-        String param = request.getParameter(date);
-        return param.isEmpty() ? null : LocalDate.parse(param);
+    private static LocalDate getDate(HttpServletRequest request, String param) {
+        String parameter = request.getParameter(param);
+        return parameter.isEmpty() ? null : LocalDate.parse(parameter);
     }
 
-    private static LocalTime getTime(HttpServletRequest request, String time) {
-        String param = request.getParameter(time);
-        return param.isEmpty() ? null : LocalTime.parse(param);
+    private static LocalTime getTime(HttpServletRequest request, String param) {
+        String parameter = request.getParameter(param);
+        return parameter.isEmpty() ? null : LocalTime.parse(parameter);
     }
 
-    private static int getInt(HttpServletRequest request, String param) {
-        String paramId = Objects.requireNonNull(request.getParameter(param));
+    private static int getId(HttpServletRequest request) {
+        String paramId = Objects.requireNonNull(request.getParameter(MealServlet.ID));
         return Integer.parseInt(paramId);
     }
 

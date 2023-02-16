@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
@@ -50,17 +49,22 @@ public class InMemoryMealRepository implements MealRepository {
 
     @Override
     public boolean delete(int id, int userId) {
-        return get(id) != null && get(id).getUserId() == userId && repository.remove(id) != null;
+        boolean isDelete = false;
+        if (checkMealAndSameUserId(id, userId) != null) {
+            repository.remove(id);
+            isDelete = true;
+        }
+        return isDelete;
     }
 
-    private Meal get(int id) {
-        return repository.get(id);
+    private Meal checkMealAndSameUserId(int id, int userId) {
+        Meal meal = repository.get(id);
+        return meal != null && meal.getUserId() == userId ? meal : null;
     }
 
     @Override
     public Meal get(int id, int userId) {
-        Meal result = get(id);
-        return result != null && result.getUserId() == userId ? result : null;
+        return checkMealAndSameUserId(id, userId);
     }
 
     @Override

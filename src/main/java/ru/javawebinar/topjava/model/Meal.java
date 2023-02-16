@@ -51,10 +51,6 @@ public class Meal extends AbstractBaseEntity {
         return dateTime.toLocalTime();
     }
 
-    public boolean isNew() {
-        return id == null;
-    }
-
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Meal{");
