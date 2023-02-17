@@ -60,7 +60,7 @@ public class InMemoryUserRepository implements UserRepository {
                 .findFirst().orElse(null);
     }
 
-    public Stream<User> getValuesStream() {
+    private Stream<User> getValuesStream() {
         return repository.values().stream();
     }
 }

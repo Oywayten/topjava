@@ -4,8 +4,6 @@
 <html>
 <head>
     <title>Meal</title>
-
-    <link rel="stylesheet" href="webjars/datetimepicker/2.5.20-1/jquery.datetimepicker.css">
     <style>
         dl {
             background: none repeat scroll 0 0 #FAFAFA;

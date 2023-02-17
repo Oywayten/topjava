@@ -22,13 +22,11 @@ public class InMemoryMealRepository implements MealRepository {
     private final AtomicInteger counter = new AtomicInteger(0);
 
     {
-        List<Meal> meals = MealsUtil.meals;
-        for (int i = 0; i < meals.size(); i++) {
-            if (i < meals.size() / 2) {
-                save(meals.get(i), 1);
-            } else {
-                save(meals.get(i), 2);
-            }
+        for (Meal meal : MealsUtil.meals1) {
+            save(meal, 1);
+        }
+        for (Meal meal : MealsUtil.meals2) {
+            save(meal, 2);
         }
     }
 
@@ -49,22 +47,13 @@ public class InMemoryMealRepository implements MealRepository {
 
     @Override
     public boolean delete(int id, int userId) {
-        boolean isDelete = false;
-        if (checkMealAndSameUserId(id, userId) != null) {
-            repository.remove(id);
-            isDelete = true;
-        }
-        return isDelete;
-    }
-
-    private Meal checkMealAndSameUserId(int id, int userId) {
-        Meal meal = repository.get(id);
-        return meal != null && meal.getUserId() == userId ? meal : null;
+        return get(id, userId) != null && repository.remove(id) != null;
     }
 
     @Override
     public Meal get(int id, int userId) {
-        return checkMealAndSameUserId(id, userId);
+        Meal meal = repository.get(id);
+        return meal != null && meal.getUserId() == userId ? meal : null;
     }
 
     @Override
@@ -76,12 +65,12 @@ public class InMemoryMealRepository implements MealRepository {
         return repository.values().stream()
                 .filter(filter)
                 .filter(meal -> meal.getUserId() == userId)
-                .sorted(Comparator.comparing(Meal::getDate).reversed())
+                .sorted(Comparator.comparing(Meal::getDate).thenComparing(Meal::getTime).reversed())
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<Meal> getAllByDate(int userId, LocalDate startDate, LocalDate endDate) {
+    public List<Meal> getAllByDates(int userId, LocalDate startDate, LocalDate endDate) {
         return getAllByPredicate(userId, meal -> DateTimeUtil.isBetweenHalfOpen(
                 meal.getDate(), startDate, endDate.plusDays(1)));
     }

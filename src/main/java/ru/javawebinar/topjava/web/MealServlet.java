@@ -29,7 +29,7 @@ public class MealServlet extends HttpServlet {
     @Override
     public void init() {
         appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml");
-        System.out.println("Bean definition names: " + Arrays.toString(appCtx.getBeanDefinitionNames()));
+        log.debug("Bean definition names: " + Arrays.toString(appCtx.getBeanDefinitionNames()));
         mealController = appCtx.getBean(MealRestController.class);
     }
 
@@ -39,10 +39,10 @@ public class MealServlet extends HttpServlet {
         Meal meal = new Meal(LocalDateTime.parse(request.getParameter("dateTime")),
                 request.getParameter("description"),
                 Integer.parseInt(request.getParameter("calories")));
-        String parameter = request.getParameter(ID);
-        meal.setId(parameter.isEmpty() ? null : getId(request));
+        String parameterId = request.getParameter(ID);
+        meal.setId(parameterId.isEmpty() ? null : getId(request));
         log.info(meal.isNew() ? "doPost Create {}" : "Update {}", meal);
-        if (parameter.isEmpty()) {
+        if (meal.isNew()) {
             mealController.create(meal);
         } else {
             mealController.update(meal, getId(request));
