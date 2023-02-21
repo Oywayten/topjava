@@ -13,17 +13,16 @@ import java.util.Arrays;
 import static ru.javawebinar.topjava.UserTestData.NOT_FOUND;
 import static ru.javawebinar.topjava.UserTestData.USER_ID;
 
-@Ignore
 public class InMemoryAdminRestControllerTest {
-    private static final Logger log = LoggerFactory.getLogger(InMemoryAdminRestControllerTest.class);
 
+    private static final Logger log = LoggerFactory.getLogger(InMemoryAdminRestControllerTest.class);
     private static ConfigurableApplicationContext appCtx;
     private static AdminRestController controller;
     private static InMemoryUserRepository repository;
 
     @BeforeClass
     public static void beforeClass() {
-        appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml");
+        appCtx = new ClassPathXmlApplicationContext("spring/spring-test.xml");
         log.info("\n{}\n", Arrays.toString(appCtx.getBeanDefinitionNames()));
         controller = appCtx.getBean(AdminRestController.class);
         repository = appCtx.getBean(InMemoryUserRepository.class);
