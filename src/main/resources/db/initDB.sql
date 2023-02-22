@@ -7,11 +7,11 @@ CREATE SEQUENCE global_seq START WITH 100000;
 
 CREATE TABLE users
 (
-    id               INTEGER PRIMARY KEY DEFAULT nextval('global_seq'),
+    id               INTEGER PRIMARY KEY DEFAULT NEXTVAL('global_seq'),
     name             VARCHAR                           NOT NULL,
     email            VARCHAR                           NOT NULL,
     password         VARCHAR                           NOT NULL,
-    registered       TIMESTAMP           DEFAULT now() NOT NULL,
+    registered       TIMESTAMP           DEFAULT NOW() NOT NULL,
     enabled          BOOL                DEFAULT TRUE  NOT NULL,
     calories_per_day INTEGER             DEFAULT 2000  NOT NULL
 );
@@ -27,11 +27,11 @@ CREATE TABLE user_role
 
 CREATE TABLE meals
 (
-    id          INTEGER PRIMARY KEY DEFAULT nextval('global_seq'),
-    datetime    timestamp NOT NULL,
-    description text      NOT NULL,
-    calories    integer   not null,
+    id          INTEGER PRIMARY KEY DEFAULT NEXTVAL('global_seq'),
+    date_time   TIMESTAMP NOT NULL,
+    description TEXT      NOT NULL,
+    calories    INTEGER   NOT NULL,
     user_id     INTEGER   NOT NULL,
-    CONSTRAINT user_meals_idx UNIQUE (user_id, datetime),
+    CONSTRAINT user_meals_idx UNIQUE (user_id, date_time),
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
