@@ -1,6 +1,8 @@
 package ru.javawebinar.topjava.service;
 
+import org.junit.ClassRule;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
+import ru.javawebinar.topjava.TestLoggingRule;
+import ru.javawebinar.topjava.TestStopWatch;
+import ru.javawebinar.topjava.UserTestData;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
@@ -28,6 +33,12 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 @Ignore
 public class MealServiceTest {
+
+    @ClassRule
+    public static TestLoggingRule testLoggingRule = new TestLoggingRule(TestStopWatch.getTestTime());
+
+    @Rule
+    public TestStopWatch stopwatch = new TestStopWatch();
 
     @Autowired
     private MealService service;
@@ -51,6 +62,7 @@ public class MealServiceTest {
     @Test
     public void create() {
         Meal created = service.create(getNew(), USER_ID);
+        created.setUser(null);
         int newId = created.id();
         Meal newMeal = getNew();
         newMeal.setId(newId);
@@ -77,7 +89,7 @@ public class MealServiceTest {
 
     @Test
     public void getNotOwn() {
-        assertThrows(NotFoundException.class, () -> service.get(MEAL1_ID, ADMIN_ID));
+        assertThrows(NotFoundException.class, () -> service.get(MEAL1_ID, UserTestData.NOT_FOUND));
     }
 
     @Test
@@ -89,8 +101,8 @@ public class MealServiceTest {
 
     @Test
     public void updateNotOwn() {
-        assertThrows(NotFoundException.class, () -> service.update(meal1, ADMIN_ID));
         MEAL_MATCHER.assertMatch(service.get(MEAL1_ID, USER_ID), meal1);
+        assertThrows(NotFoundException.class, () -> service.update(meal1, ADMIN_ID));
     }
 
     @Test
