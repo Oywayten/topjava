@@ -1,19 +1,20 @@
 package ru.javawebinar.topjava.service;
 
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Stopwatch;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
-import ru.javawebinar.topjava.TestLoggingRule;
-import ru.javawebinar.topjava.TestStopWatch;
-import ru.javawebinar.topjava.UserTestData;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
@@ -29,16 +30,36 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
         "classpath:spring/spring-app.xml",
         "classpath:spring/spring-db.xml"
 })
+
 @RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
-@Ignore
 public class MealServiceTest {
 
+    public static final float NANOS_PER_SECOND = 1_000_000_000f;
+    private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
+    private static final StringBuilder testTime = new StringBuilder();
+
     @ClassRule
-    public static TestLoggingRule testLoggingRule = new TestLoggingRule(TestStopWatch.getTestTime());
+    public static TestWatcher testLoggingRule = new TestWatcher() {
+
+        @Override
+        protected void finished(Description description) {
+            log.debug(testTime.toString());
+        }
+    };
 
     @Rule
-    public TestStopWatch stopwatch = new TestStopWatch();
+    public Stopwatch stopwatch = new Stopwatch() {
+        private final String ln = System.lineSeparator();
+        private static final String FORMAT = "%-23s %.3f seconds";
+
+        @Override
+        protected void finished(long nanos, Description description) {
+            String timeInfo = String.format(FORMAT, description.getMethodName(), nanos / NANOS_PER_SECOND);
+            testTime.append(ln).append(timeInfo);
+            log.debug(String.format(timeInfo));
+        }
+    };
 
     @Autowired
     private MealService service;
@@ -62,7 +83,6 @@ public class MealServiceTest {
     @Test
     public void create() {
         Meal created = service.create(getNew(), USER_ID);
-        created.setUser(null);
         int newId = created.id();
         Meal newMeal = getNew();
         newMeal.setId(newId);
@@ -89,7 +109,7 @@ public class MealServiceTest {
 
     @Test
     public void getNotOwn() {
-        assertThrows(NotFoundException.class, () -> service.get(MEAL1_ID, UserTestData.NOT_FOUND));
+        assertThrows(NotFoundException.class, () -> service.get(MEAL1_ID, ADMIN_ID));
     }
 
     @Test
@@ -101,8 +121,8 @@ public class MealServiceTest {
 
     @Test
     public void updateNotOwn() {
-        MEAL_MATCHER.assertMatch(service.get(MEAL1_ID, USER_ID), meal1);
         assertThrows(NotFoundException.class, () -> service.update(meal1, ADMIN_ID));
+        MEAL_MATCHER.assertMatch(service.get(MEAL1_ID, USER_ID), meal1);
     }
 
     @Test
