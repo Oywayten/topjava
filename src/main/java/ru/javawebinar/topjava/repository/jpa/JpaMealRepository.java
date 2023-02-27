@@ -10,7 +10,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 @Repository
 @Transactional(readOnly = true)
@@ -45,9 +44,8 @@ public class JpaMealRepository implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        User user = em.getReference(User.class, userId);
         Meal meal = em.find(Meal.class, id);
-        return meal != null && user != null && Objects.equals(user.getId(), meal.getUser().getId()) ? meal : null;
+        return meal != null && userId == meal.getUser().getId() ? meal : null;
     }
 
     @Override
