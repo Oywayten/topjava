@@ -20,6 +20,7 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.MealTestData.*;
@@ -30,12 +31,10 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
         "classpath:spring/spring-app.xml",
         "classpath:spring/spring-db.xml"
 })
-
 @RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
 
-    public static final float NANOS_PER_SECOND = 1_000_000_000f;
     private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
     private static final StringBuilder testTime = new StringBuilder();
 
@@ -50,14 +49,13 @@ public class MealServiceTest {
 
     @Rule
     public Stopwatch stopwatch = new Stopwatch() {
-        private final String ln = System.lineSeparator();
-        private static final String FORMAT = "%-23s %.3f seconds";
+        private static final String FORMAT = "%-23s %d ms";
 
         @Override
         protected void finished(long nanos, Description description) {
-            String timeInfo = String.format(FORMAT, description.getMethodName(), nanos / NANOS_PER_SECOND);
-            testTime.append(ln).append(timeInfo);
-            log.debug(String.format(timeInfo));
+            String timeInfo = String.format(FORMAT, description.getMethodName(), TimeUnit.MILLISECONDS.convert(nanos, TimeUnit.NANOSECONDS));
+            testTime.append(System.lineSeparator()).append(timeInfo);
+            log.debug(timeInfo);
         }
     };
 
