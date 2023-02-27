@@ -10,6 +10,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Repository
 @Transactional(readOnly = true)
@@ -21,7 +22,7 @@ public class JpaMealRepository implements MealRepository {
     @Override
     @Transactional
     public Meal save(Meal meal, int userId) {
-        User user = em.find(User.class, userId);
+        User user = em.getReference(User.class, userId);
         if (meal.isNew()) {
             meal.setUser(user);
             em.persist(meal);
@@ -44,12 +45,9 @@ public class JpaMealRepository implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        User user = em.find(User.class, userId);
+        User user = em.getReference(User.class, userId);
         Meal meal = em.find(Meal.class, id);
-        if (meal != null && user != null && user == meal.getUser()) {
-            return meal;
-        }
-        return null;
+        return meal != null && user != null && Objects.equals(user.getId(), meal.getUser().getId()) ? meal : null;
     }
 
     @Override
